@@ -20,6 +20,25 @@ function makeInfo(documentCount, pageCount, baseURL, currentPage) {
     };
 }
 
+// Para o frontend
+router.get("/all", async (req, res) => {
+    try {
+
+        let results = await db
+            .collection("users")
+            .find({})
+            .toArray();
+
+        if (results.length == 0) {
+            return res.status(400).send("No results");
+        }
+
+        res.status(200).send(results);
+    } catch (e) {
+        res.status(400).send("Could not fetch users");
+    }
+});
+
 //  Alínea 2
 router.get("/", async (req, res) => {
     const docCount = await db.collection("users").countDocuments();

@@ -9,7 +9,7 @@ import { userSession } from '../auth';
 
 import CardGroup from 'react-bootstrap/CardGroup';
 import Row from 'react-bootstrap/Row';
-
+import Button from 'react-bootstrap/Button';
 import CommentCard from "../components/CommentCard";
 
 const bytes = utf8ToBytes('foo'); 
@@ -17,8 +17,10 @@ const bufCV = bufferCV(bytes);
 
 export default function App() {
   let params = useParams();
+  let navigate = useNavigate();
   let [book, setBook] = useState(1);
   let [comments, setComments] = useState([]);
+  let [users, setUsers] = useState([]);
 
   const getBook = async (id) => {
     try {
@@ -39,11 +41,29 @@ export default function App() {
     }
   }
 
+  const getUsers = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/users/all/', {
+        method: 'GET',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+      });
+      
+      const data = await response.json();
+      console.log(data)
+      setUsers(Array.isArray(data) ? data : []);
+
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
   useEffect(() => {
     let id = params.id;
     console.log(id);
     getBook(params.id);
-
+    getUsers();
   }, []);
 
   function formatDate(date) {
@@ -58,8 +78,17 @@ export default function App() {
         day = '0' + day;
 
     return [day, month, year].join('-');
-}
+  }
 
+  const userFromComment = comments.map((comment) => {
+    const user = users.find((user) => user._id.toString() === comment.user_id.toString());
+    return {
+      ...comment,
+      user_name: user ? user.first_name + " " + user.last_name : ""
+    };
+  });
+
+  const title = book.title?.length > 0 ? book.title : "N/A";
   const isbn = book.isbn?.length > 0 ? book.isbn : "N/A";
   const pageCount = (book.pageCount && book.pageCount > 0) ? book.pageCount : "N/A";
   const publishedDate = book.publishedDate?.length > 0 ? formatDate(book.publishedDate) : "N/A";
@@ -70,12 +99,15 @@ export default function App() {
   const authors = book.authors?.length > 0 ? book.authors.join(", ") : "N/A";
   const categories = book.categories?.length > 0 ? book.categories.join(", ") : "N/A";
   const price = (book.price && book.price > 0) ? book.price : "N/A";
-  const average_score = (book.average_score && book.average_score > 0) ? Math.round(book.average_score * 1000) / 1000 : 0;
-/*   const comments = book.comments?.length > 0 ? book.comments : "N/A";
- */
+  const average_score = book.average_score ? Math.round(book.average_score * 1000) / 1000 : "N/A";
+
   return (
     <div className="container pt-5 pb-5">
-      <h2>{book.title}</h2>
+      <Button onClick={() => navigate(-1)} variant="outline-secundary">
+        Back
+      </Button>
+      <br></br><br></br>
+      <h2>{title}</h2>
       <img src={thumbnailUrl}></img>
       <br></br><br></br>
       <p><strong>ISBN: </strong>{isbn}</p>
@@ -88,19 +120,26 @@ export default function App() {
       <p><strong>Categories: </strong>{categories}</p>
       <p><strong>Price: </strong>{price}</p>
       <p><strong>Average Score: </strong>{average_score}</p>
-      {<p><strong>Comments: </strong></p>}
-      <CardGroup>
+      { comments.length === 0 ? (
+        <div>
+          <br></br>
+          <p>No Comments!</p>
+        </div>
+      ) : (
+        <div>
+          <br></br>
+          <CardGroup>
           <Row xs={1} md={1} className="d-flex justify-content-around">
-          {comments && comments.map((comment) => {
-              return (
-                  <CommentCard 
-                      key={comment._id} 
-                      {...comment}
-                  />
-              );
-          })}
+          {userFromComment.map((comment) => (
+            <CommentCard 
+                key={comment._id} 
+                {...comment} 
+            />
+          ))}
           </Row>
-      </CardGroup>
+        </CardGroup>
+        </div>
+      )}
     </div>
   )
 }
