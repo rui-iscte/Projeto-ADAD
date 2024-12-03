@@ -11,11 +11,11 @@ const bufCV = bufferCV(bytes);
 
 export default function App() {
   let params = useParams();
-  let [book, setBook] = useState([]);
+  let [user, setUser] = useState([]);
 
-  const getBook = async (id) => {
+  const getUser = async (id) => {
     try {
-      const response = await fetch('http://localhost:3000/books/$id', {
+      const response = await fetch('http://localhost:3000/users/$id', {
         method: 'GET',
         headers: {
         'Content-Type': 'application/json'
@@ -24,7 +24,7 @@ export default function App() {
       
       const data = await response.json();
       console.log(data)
-      setBook(data);
+      setUser(data);
 
     } catch (error) {
       console.error('Error:', error);
@@ -34,16 +34,19 @@ export default function App() {
   useEffect(() => {
     let id = params.id;
     console.log(id);
-    getBook(params.id);
+    getUser(params.id);
 
   }, []);
 
   return (
     <div className="container pt-5 pb-5">
-      <h2>Book page</h2>
-      <p>use /book/:id endpoint</p>
-
-      
+      <h2>Users</h2>
+      return (
+              <BookInfo 
+                key={user._id} 
+                {...user}
+              />
+            );
     </div>
   )
 }

@@ -5,10 +5,9 @@ function BookCard(props) {
   return (
     <Card style={{ width: '18rem' }} className="mb-3">
       <Card.Body>
+      <Card.Img variant="top" src={props.thumbnailUrl} />
         <Card.Title>{props.title}</Card.Title>
-        <Card.Text>
-          _id: {props._id}
-        </Card.Text>
+        <Card.Text>_id: {props._id}</Card.Text>
         <Button href={"/book/" + props._id} variant="outline-primary">Open Book</Button>
       </Card.Body>
     </Card>
