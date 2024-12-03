@@ -47,6 +47,7 @@ function UserCard(props) {
           <Card.Text>No Reviews! </Card.Text>
         )
         }
+        <br></br>
         <div className="d-flex justify-content-between">
           <Button href={"/book/" + props._id} variant="outline-primary">
             <FontAwesomeIcon icon={faExternalLink} />
