@@ -17,6 +17,7 @@ import Books from "./pages/Books";
 import Users from "./pages/Users";
 import Book from "./pages/Book";
 import User from "./pages/User";
+import EditBook from "./pages/EditBook";
 import Footer from './components/Footer';
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
           <Route path="/users" element={<Users />} />
           <Route path="/book/:id" element={<Book />} />
           <Route path="/user/:id" element={<User />} />
+          <Route path="/editbook/:id" element={<EditBook />} />
         </Routes>
         <Footer />
       </Router>

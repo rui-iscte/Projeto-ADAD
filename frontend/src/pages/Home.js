@@ -16,6 +16,27 @@ export default function App() {
           </p>
         </div>
       </div>
+
+      <div className="container mt-5 mb-5">
+        <div className="row mb-5">
+          <div className="row-md-5">
+            <h2>Tasks List:</h2>
+            <ul>
+              <li>/books get page DONE</li>
+              <li>/users get page DONE</li>
+              <li>/book/:id get page DONE</li>
+              <li>/user/:id get page DONE</li>
+              <li>/book/ post page TODO</li>
+              <li>/user/ post page TODO</li>
+              <li>/book/ put page TODO</li>
+              <li>/user/ put page TODO</li>
+              <li>/book/:id delete DONE (button: the button is inside the BookCard instead of the actual /book/:id, we thought it looked better this way)</li>
+              <li>/user/:id delete DONE (button: the button is inside the UserCard instead of the actual /user/:id, we thought it looked better this way)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div className="container mt-5 mb-5">
       <div className="row mb-5">
           <div className="col-md-4">

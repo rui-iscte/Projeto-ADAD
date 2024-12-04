@@ -46,7 +46,7 @@ function BookCard(props) {
           <Button href={"/book/" + props._id} target="_blank" variant="outline-primary">
             <FontAwesomeIcon icon={faExternalLink} />
           </Button>
-          <Button href={"/book/" + props._id} variant="outline-warning">
+          <Button href={"/editbook/" + props._id} variant="outline-warning">
             <FontAwesomeIcon icon={faPenToSquare} />
           </Button>
           <Button onClick={handleDelete} variant="outline-danger">
