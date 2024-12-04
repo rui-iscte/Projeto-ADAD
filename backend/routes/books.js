@@ -219,13 +219,38 @@ router.get("/top/:limit", async (req, res) => {
                 average_score: { $avg: "$reviews.score" }
             }},
             { $sort: {"average_score": -1 
-        }},
+            }},
             { $lookup: {
                 from: "books",
                 localField: "_id",
                 foreignField: "_id",
                 as: "book_info"
-            }}
+            }},
+            { $unwind: "$book_info" 
+            },
+            { 
+                $replaceRoot: { 
+                    newRoot: { 
+                        $mergeObjects: ["$book_info", { average_score: "$average_score" }] 
+                    } 
+                } 
+            },
+            { 
+                $project: {
+                    title: 1,
+                    isbn: 1,
+                    pageCount: 1,
+                    publishedDate: 1,
+                    thumbnailUrl: 1,
+                    shortDescription: 1,
+                    longDescription: 1,
+                    status: 1,
+                    authors: 1,
+                    categories: 1,
+                    price: 1,
+                    average_score: 1
+                }
+            }
         ])
         .limit(limit)
         .skip((page - 1) * defaultDocPerPage)
