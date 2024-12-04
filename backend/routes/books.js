@@ -105,6 +105,7 @@ router.post('/', async (req, res) => {
             insertFields.pageCount = req.body.pageCount;
             insertFields.publishedDate = req.body.publishedDate;
             insertFields.thumbnailUrl = req.body.thumbnailUrl;
+            insertFields.shortDescription = req.body.shortDescription;
             insertFields.longDescription = req.body.longDescription;
             insertFields.status = req.body.status;
             insertFields.authors = req.body.authors;
@@ -125,6 +126,7 @@ router.post('/', async (req, res) => {
                 pageCount: book.pageCount,
                 publishedDate: book.publishedDate,
                 thumbnailUrl: book.thumbnailUrl,
+                shortDescription: book.shortDescription,
                 longDescription: book.longDescription,
                 status: book.status,
                 authors: book.authors,
@@ -179,6 +181,7 @@ router.put('/:id', async (req, res) => {
         if (req.body.pageCount) updateFields.pageCount = req.body.pageCount;
         if (req.body.publishedDate) updateFields.publishedDate = req.body.publishedDate;
         if (req.body.thumbnailUrl) updateFields.thumbnailUrl = req.body.thumbnailUrl;
+        if (req.body.shortDescription) updateFields.shortDescription = req.body.shortDescription;
         if (req.body.longDescription) updateFields.longDescription = req.body.longDescription;
         if (req.body.status) updateFields.status = req.body.status;
         if (req.body.authors) updateFields.authors = req.body.authors;
@@ -191,7 +194,7 @@ router.put('/:id', async (req, res) => {
             );
 
         if (result.modifiedCount == 0) {
-            return res.status(400).send({ error: "Book not found or not updated" });
+            return res.status(400).send({ error: "No Changes" });
         }
 
         res.status(200).send(result);

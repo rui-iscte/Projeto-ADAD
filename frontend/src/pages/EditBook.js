@@ -17,8 +17,6 @@ export default function App() {
   let params = useParams();
   let navigate = useNavigate();
   let [book, setBook] = useState(1);
-  let [comments, setComments] = useState([]);
-  let [users, setUsers] = useState([]);
 
   const getBook = async (id) => {
     try {
@@ -44,47 +42,118 @@ export default function App() {
     getBook(params.id);
   }, []);
 
-  const title = book.title?.length > 0 ? book.title : "N/A";
-  const isbn = book.isbn?.length > 0 ? book.isbn : "N/A";
-  const pageCount = (book.pageCount && book.pageCount > 0) ? book.pageCount : "N/A";
-  const publishedDate = book.publishedDate?.length > 0 ? book.publishedDate : "N/A";
-  const thumbnailUrl = book.thumbnailUrl?.length > 0 ? book.thumbnailUrl : "https://media.istockphoto.com/id/1500807425/vector/image-not-found-icon-vector-design.jpg?s=612x612&w=0&k=20&c=SF3EoL0zSi3XUwFzduMo3xdJFEk8V5IUsGqRocgPEtU=";
-  const shortDescription = book.shortDescription?.length > 0 ? book.shortDescription : "N/A";
-  const longDescription = book.longDescription?.length > 0 ? book.longDescription : "N/A";
-  const status = book.status?.length > 0 ? book.status : "N/A";
-  const authors = book.authors?.length > 0 ? book.authors.join(", ") : "N/A";
-  const categories = book.categories?.length > 0 ? book.categories.join(", ") : "N/A";
-  const price = (book.price && book.price > 0) ? book.price : "N/A";
-  const average_score = book.average_score ? Math.round(book.average_score * 1000) / 1000 : "N/A";
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setBook((prevBook) => ({
+      ...prevBook,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const updatedBook = {
+      ...book,
+      authors: !Array.isArray(book.authors) ? (book.authors || "N/A").split(',').map((author) => author.trim()) : book.authors,
+      categories: !Array.isArray(book.categories) ? (book.categories || "N/A").split(',').map((category) => category.trim()) : book.categories
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/books/' + params.id, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedBook),
+      });
+
+      if (response.ok) {
+        alert('Book updated successfully!');
+        navigate('/books');
+      } else {
+        const error = await response.json();
+        alert(`Failed to update the book: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const title = book.title?.length > 0 ? book.title : '';
+  const isbn = book.isbn?.length > 0 ? book.isbn : '';
+  const pageCount = (book.pageCount && book.pageCount > 0) ? book.pageCount : '';
+  const publishedDate = book.publishedDate?.length > 0 ? new Date(book.publishedDate).toISOString().split(".")[0] : '';
+  const thumbnailUrl = book.thumbnailUrl?.length > 0 ? book.thumbnailUrl : '';
+  const shortDescription = book.shortDescription?.length > 0 ? book.shortDescription : '';
+  const longDescription = book.longDescription?.length > 0 ? book.longDescription : '';
+  const status = book.status?.length > 0 ? book.status : '';
+  const price = (book.price && book.price > 0) ? book.price : '';
+  const authors = Array.isArray(book.authors) ? book.authors.join(", ") : book.authors || '';
+  const categories = Array.isArray(book.categories) ? book.categories.join(", ") : book.categories || '';  
 
   return (
     <div className="container pt-5 pb-5">
-      <Form>
-        <Form.Group className="mb-3" controlId="formBasicTitle">
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3">
           <Form.Label>Title*</Form.Label>
-          <Form.Control type="title" placeholder="Enter title" />
-          <Form.Text className="text-muted">
-            We'll never share your email with anyone else.
-          </Form.Text>
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicISBN">
-          <Form.Label>ISBN</Form.Label>
-          <Form.Control type="isbn" placeholder="Enter isbn" />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Password" />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicCheckbox">
-          <Form.Check type="checkbox" label="Check me out" />
+          <Form.Control name="title" type="text" placeholder="Enter title" value={title} onChange={handleChange} required/>
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Disabled select menu</Form.Label>
-          <Form.Select>
-            <option>Disabled select</option>
-          </Form.Select>
+          <Form.Label>ISBN</Form.Label>
+          <Form.Control name="isbn" type="text" placeholder="Enter isbn" value={isbn} onChange={handleChange}/>
+        </Form.Group>
+        
+        <Form.Group className="mb-3">
+          <Form.Label>Page Count</Form.Label>
+          <Form.Control name="pageCount" type="text" placeholder="Enter page count" value={pageCount} onChange={handleChange}/>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Published Date</Form.Label>
+          <Form.Control name="publishedDate" type="datetime-local" id="birthdaytime" value={publishedDate} onChange={handleChange}/>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Thumbnail URL</Form.Label>
+          <Form.Control name="thumbnailUrl" type="url" placeholder="Enter thumbnail url" value={thumbnailUrl} onChange={handleChange}/>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Short Description</Form.Label>
+          <Form.Control name="shortDescription" type="text" placeholder="Enter short description" value={shortDescription} onChange={handleChange}/>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Long Description</Form.Label>
+          <Form.Control name="longDescription" type="text" placeholder="Enter long description" value={longDescription} onChange={handleChange}/>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Status</Form.Label>
+          <Form.Control name="status" type="text" placeholder="Enter status" value={status} onChange={handleChange}/>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Price</Form.Label>
+          <Form.Control name="price" type="text" placeholder="Enter price" value={price} onChange={handleChange}/>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Authors</Form.Label>
+          <Form.Control name="authors" type="text" placeholder="Enter authors" value={authors} onChange={handleChange}/>
+          <Form.Text className="text-muted">
+            Write the names of the authors, splitted with a ' , '.
+          </Form.Text>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Categories</Form.Label>
+          <Form.Control name="categories" type="text" placeholder="Enter categories" value={categories} onChange={handleChange}/>
+          <Form.Text className="text-muted">
+            Write the categories, splitted with a ' , '.
+          </Form.Text>
         </Form.Group>
 
         <Button variant="primary" type="submit">
