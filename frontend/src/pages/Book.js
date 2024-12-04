@@ -12,6 +12,9 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import CommentCard from "../components/CommentCard";
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+
 const bytes = utf8ToBytes('foo'); 
 const bufCV = bufferCV(bytes);
 
@@ -103,11 +106,12 @@ export default function App() {
 
   return (
     <div className="container pt-5 pb-5">
-      <Button onClick={() => navigate(-1)} variant="outline-secundary">
-        Back
-      </Button>
+      {/* <Button onClick={() => navigate(-1)} variant="outline-secundary">
+        <FontAwesomeIcon icon={faAngleLeft} />
+      </Button> */}
       <br></br><br></br>
       <h2>{title}</h2>
+      <br></br>
       <img src={thumbnailUrl}></img>
       <br></br><br></br>
       <p><strong>ISBN: </strong>{isbn}</p>
@@ -118,7 +122,7 @@ export default function App() {
       <p><strong>Status: </strong>{status}</p>
       <p><strong>Authors: </strong>{authors}</p>
       <p><strong>Categories: </strong>{categories}</p>
-      <p><strong>Price: </strong>{price}</p>
+      <p><strong>Price: </strong>{price}€</p>
       <p><strong>Average Score: </strong>{average_score}</p>
       { comments.length === 0 ? (
         <div>

@@ -12,6 +12,9 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import ReviewCard from "../components/ReviewCard";
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+
 const bytes = utf8ToBytes('foo'); 
 const bufCV = bufferCV(bytes);
 
@@ -86,9 +89,9 @@ export default function App() {
   
   return (
     <div className="container pt-5 pb-5">
-      <Button onClick={() => navigate(-1)} variant="outline-secundary">
-        Back
-      </Button>
+      {/* <Button onClick={() => navigate(-1)} variant="outline-secundary">
+        <FontAwesomeIcon icon={faAngleLeft} />
+      </Button> */}
       <br></br><br></br>
       <h2>{name}</h2>
       <br></br><br></br>

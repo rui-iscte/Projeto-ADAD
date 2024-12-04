@@ -49,10 +49,10 @@ function UserCard(props) {
         }
         <br></br>
         <div className="d-flex justify-content-between">
-          <Button href={"/book/" + props._id} variant="outline-primary">
+          <Button href={"/user/" + props._id} target="_blank" variant="outline-primary">
             <FontAwesomeIcon icon={faExternalLink} />
           </Button>
-          <Button href={"/book/" + props._id} variant="outline-warning">
+          <Button href={"/user/" + props._id} variant="outline-warning">
             <FontAwesomeIcon icon={faPenToSquare} />
           </Button>
           <Button onClick={handleDelete} variant="outline-danger">

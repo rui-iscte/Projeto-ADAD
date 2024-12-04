@@ -789,10 +789,12 @@ router.get("/:id", async (req, res) => {
                     pageCount: 1,
                     publishedDate: 1,
                     thumbnailUrl: 1,
+                    shortDescription: 1,
                     longDescription: 1,
                     status: 1,
                     authors: 1,
                     categories: 1,
+                    price: 1,
                     average_score: { $ifNull: [{ $arrayElemAt: ["$average_score.average_score", 0] }, 0] },
                     comments: { $ifNull: ["$comments", []] }
                 }}

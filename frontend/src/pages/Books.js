@@ -5,6 +5,9 @@ import Button from 'react-bootstrap/Button';
 import BookCard from "../components/BookCard";
 import { useNavigate } from "react-router-dom";
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+
 export default function App() {
   let navigate = useNavigate();
   let [books, setBooks] = useState([]);
@@ -50,7 +53,7 @@ export default function App() {
   return (
     <div className="container pt-5 pb-5">
       <Button onClick={() => navigate(-1)} variant="outline-secundary">
-        Back
+        <FontAwesomeIcon icon={faAngleLeft} />
       </Button>
       <br></br><br></br>
       <h2>Books</h2>
