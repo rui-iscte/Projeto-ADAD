@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { openContractCall } from '@stacks/connect';
 import {
@@ -10,7 +10,7 @@ import { userSession } from '../auth';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
-const bytes = utf8ToBytes('foo'); 
+const bytes = utf8ToBytes('foo');
 const bufCV = bufferCV(bytes);
 
 export default function App() {
@@ -23,10 +23,10 @@ export default function App() {
       const response = await fetch('http://localhost:3000/books/' + id, {
         method: 'GET',
         headers: {
-        'Content-Type': 'application/json'
+          'Content-Type': 'application/json'
         },
       });
-      
+
       const data = await response.json();
       console.log(data)
       setBook(data[0]);
@@ -90,59 +90,59 @@ export default function App() {
   const status = book.status?.length > 0 ? book.status : '';
   const price = (book.price && book.price > 0) ? book.price : '';
   const authors = Array.isArray(book.authors) ? book.authors.join(", ") : book.authors || '';
-  const categories = Array.isArray(book.categories) ? book.categories.join(", ") : book.categories || '';  
+  const categories = Array.isArray(book.categories) ? book.categories.join(", ") : book.categories || '';
 
   return (
     <div className="container pt-5 pb-5">
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>Title*</Form.Label>
-          <Form.Control name="title" type="text" placeholder="Enter title" value={title} onChange={handleChange} required/>
+          <Form.Control name="title" type="text" placeholder="Enter title" value={title} onChange={handleChange} required />
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>ISBN</Form.Label>
-          <Form.Control name="isbn" type="text" placeholder="Enter isbn" value={isbn} onChange={handleChange}/>
+          <Form.Control name="isbn" type="text" pattern="[0-9]{10}" placeholder="Enter isbn" value={isbn} onChange={handleChange} />
         </Form.Group>
-        
+
         <Form.Group className="mb-3">
           <Form.Label>Page Count</Form.Label>
-          <Form.Control name="pageCount" type="text" placeholder="Enter page count" value={pageCount} onChange={handleChange}/>
+          <Form.Control name="pageCount" type="text" pattern="[0-9]{}" placeholder="Enter page count" value={pageCount} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Published Date</Form.Label>
-          <Form.Control name="publishedDate" type="datetime-local" id="birthdaytime" value={publishedDate} onChange={handleChange}/>
+          <Form.Control name="publishedDate" type="datetime-local" id="birthdaytime" value={publishedDate} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Thumbnail URL</Form.Label>
-          <Form.Control name="thumbnailUrl" type="url" placeholder="Enter thumbnail url" value={thumbnailUrl} onChange={handleChange}/>
+          <Form.Control name="thumbnailUrl" type="url" placeholder="Enter thumbnail url" value={thumbnailUrl} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Short Description</Form.Label>
-          <Form.Control name="shortDescription" type="text" placeholder="Enter short description" value={shortDescription} onChange={handleChange}/>
+          <Form.Control name="shortDescription" type="text" placeholder="Enter short description" value={shortDescription} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Long Description</Form.Label>
-          <Form.Control name="longDescription" type="text" placeholder="Enter long description" value={longDescription} onChange={handleChange}/>
+          <Form.Control name="longDescription" type="text" placeholder="Enter long description" value={longDescription} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Status</Form.Label>
-          <Form.Control name="status" type="text" placeholder="Enter status" value={status} onChange={handleChange}/>
+          <Form.Control name="status" type="text" pattern="[A-Z]{0,10}" placeholder="Enter status" value={status} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Price</Form.Label>
-          <Form.Control name="price" type="text" placeholder="Enter price" value={price} onChange={handleChange}/>
+          <Form.Control name="price" type="text" pattern="[0-9]+([\.][0-9]{0,2})?" placeholder="Enter price" value={price} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Authors</Form.Label>
-          <Form.Control name="authors" type="text" placeholder="Enter authors" value={authors} onChange={handleChange}/>
+          <Form.Control name="authors" type="text" placeholder="Enter authors" value={authors} onChange={handleChange} />
           <Form.Text className="text-muted">
             Write the names of the authors, splitted with a ' , '.
           </Form.Text>
@@ -150,7 +150,7 @@ export default function App() {
 
         <Form.Group className="mb-3">
           <Form.Label>Categories</Form.Label>
-          <Form.Control name="categories" type="text" placeholder="Enter categories" value={categories} onChange={handleChange}/>
+          <Form.Control name="categories" type="text" placeholder="Enter categories" value={categories} onChange={handleChange} />
           <Form.Text className="text-muted">
             Write the categories, splitted with a ' , '.
           </Form.Text>

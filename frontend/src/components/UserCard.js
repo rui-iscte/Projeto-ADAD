@@ -12,7 +12,7 @@ function UserCard(props) {
     name = "N/A"
   }
   const job = props.job?.length > 0 ? props.job : "N/A";
-  const reviews = props.reviews?.length > 0 ? props.reviews.length: null;
+  const reviews = props.reviews?.length > 0 ? props.reviews.length : null;
 
   const handleDelete = async () => {
     try {

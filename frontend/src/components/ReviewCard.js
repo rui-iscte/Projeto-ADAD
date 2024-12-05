@@ -6,9 +6,9 @@ function ReviewCard(props) {
   let recommendation = props.recommendation !== undefined ? props.recommendation : "N/A";
   if (recommendation !== "N/A") {
     if (recommendation === true) {
-        recommendation = "Buy"
+      recommendation = "Buy"
     } else if (recommendation === false) {
-        recommendation = "Don't Buy"
+      recommendation = "Don't Buy"
     }
   }
   const review_date = props.review_date?.length > 0 ? new Date(parseInt(props.review_date)).toGMTString() : "N/A";

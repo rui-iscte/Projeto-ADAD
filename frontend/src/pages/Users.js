@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import CardGroup from 'react-bootstrap/CardGroup';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
@@ -19,10 +19,10 @@ export default function App() {
       const response = await fetch('http://localhost:3000/users?page=' + currentPage, {
         method: 'GET',
         headers: {
-        'Content-Type': 'application/json'
+          'Content-Type': 'application/json'
         },
       });
-      
+
       const data = await response.json();
       console.log(data)
       setUsers(data.results);
@@ -39,7 +39,7 @@ export default function App() {
       getUsers(page + 1);
     }
   };
-  
+
   const handlePreviousPage = () => {
     if (page > 1) {
       getUsers(page - 1);
@@ -52,26 +52,26 @@ export default function App() {
 
   return (
     <div className="container pt-5 pb-5">
-      <Button onClick={() => navigate(-1)} variant="outline-secundary">
+      <Button href={"/"}/* onClick={() => navigate(-1)} */ variant="outline-secundary">
         <FontAwesomeIcon icon={faAngleLeft} />
       </Button>
       <br></br><br></br>
       <h2>Users</h2>
       <br></br><br></br>
       <CardGroup>
-          <Row xs={1} md={2} className="d-flex justify-content-around">
+        <Row xs={1} md={2} className="d-flex justify-content-around">
           {users && users.map((user) => {
-              return (
-                  <UserCard 
-                      key={user._id} 
-                      {...user}
-                  />
-              );
+            return (
+              <UserCard
+                key={user._id}
+                {...user}
+              />
+            );
           })}
-          </Row>
+        </Row>
       </CardGroup>
       <div className="d-flex justify-content-between mt-4">
-        { page !== 1 ? (
+        {page !== 1 ? (
           <Button onClick={handlePreviousPage} variant="outline-primary">
             Previous Page
           </Button>
@@ -81,7 +81,7 @@ export default function App() {
           </Button>
         )}
         <span>Page {page} of {totalPages}</span>
-        { page !== totalPages ? (
+        {page !== totalPages ? (
           <Button onClick={handleNextPage} variant="outline-primary">
             Next Page
           </Button>

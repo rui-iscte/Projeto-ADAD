@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import CardGroup from 'react-bootstrap/CardGroup';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
@@ -18,12 +18,12 @@ export default function App() {
   const getBooks = async (currentPage = 1) => {
     try {
       let response;
-      if(limit !== undefined) {
+      if (limit !== undefined) {
         console.log("tenho limit")
         response = await fetch('http://localhost:3000/books/top/' + limit + '?page=' + currentPage, {
           method: 'GET',
           headers: {
-          'Content-Type': 'application/json'
+            'Content-Type': 'application/json'
           },
         });
       } else {
@@ -31,28 +31,28 @@ export default function App() {
         response = await fetch('http://localhost:3000/books?page=' + currentPage, {
           method: 'GET',
           headers: {
-          'Content-Type': 'application/json'
+            'Content-Type': 'application/json'
           },
         });
       }
 
       const totalBooks = await fetch('http://localhost:3000/books/all', {
-          method: 'GET',
-          headers: {
+        method: 'GET',
+        headers: {
           'Content-Type': 'application/json'
-          },
-        });
+        },
+      });
 
       const data = await response.json();
       const totalbooks = await totalBooks.json();
-      
-      if(totalbooks.length > 20) {
-        if(limit === undefined) {
+
+      if (totalbooks.length > 20) {
+        if (limit === undefined) {
           console.log(data)
           setBooks(data.results);
           setPage(currentPage);
           setTotalPages(data.info.pages)
-        } else if(limit > 20) {
+        } else if (limit > 20) {
           console.log(data)
           setBooks(data.results);
           setPage(currentPage);
@@ -78,7 +78,7 @@ export default function App() {
       getBooks(page + 1);
     }
   };
-  
+
   const handlePreviousPage = () => {
     if (page > 1) {
       getBooks(page - 1);
@@ -90,6 +90,7 @@ export default function App() {
   }, [limit]);
 
   const handleChange = (e) => {
+    setPage(1);
     e.preventDefault();
     const newLimit = e.target.elements.limit.value;
     setLimit(newLimit);
@@ -97,36 +98,36 @@ export default function App() {
 
   return (
     <div className="container pt-5 pb-5">
-      <Button onClick={() => navigate(-1)} variant="outline-secundary">
+      <Button href={"/"}/* onClick={() => navigate(-1)} */ variant="outline-secundary">
         <FontAwesomeIcon icon={faAngleLeft} />
       </Button>
       <br></br><br></br>
       <h2>Books</h2>
-      <Button href={"/book/"} target="_blank" variant="outline-success">
+      <Button href={"/postbook"} variant="outline-success">
         <FontAwesomeIcon icon={faPlus} />
       </Button>
       <form onSubmit={handleChange}>
         <label htmlFor="limit">Limit:</label>
-        <input type="text" id="limit" name="limit" defaultValue={limit || ""}></input>
-        <Button type="submit" variant="outline-success">
+        <input type="text" pattern="[1-9][0-9]{0,10}" id="limit" name="limit" defaultValue={limit || ""}></input>
+        <Button type="submit" variant="outline-success" >
           <FontAwesomeIcon icon={faFilter} />
         </Button>
       </form>
       <br></br><br></br>
       <CardGroup>
-          <Row xs={1} md={2} className="d-flex justify-content-around">
+        <Row xs={1} md={2} className="d-flex justify-content-around">
           {books && Array.isArray(books) && books.map((book) => {
-              return (
-                  <BookCard 
-                      key={book._id} 
-                      {...book}
-                  />
-              );
+            return (
+              <BookCard
+                key={book._id}
+                {...book}
+              />
+            );
           })}
-          </Row>
+        </Row>
       </CardGroup>
       <div className="d-flex justify-content-between mt-4">
-        { page !== 1 ? (
+        {page !== 1 ? (
           <Button onClick={handlePreviousPage} variant="outline-primary">
             Previous Page
           </Button>
@@ -136,7 +137,7 @@ export default function App() {
           </Button>
         )}
         <span>Page {page} of {totalPages}</span>
-        { page !== totalPages ? (
+        {page !== totalPages ? (
           <Button onClick={handleNextPage} variant="outline-primary">
             Next Page
           </Button>
@@ -147,6 +148,6 @@ export default function App() {
         )}
       </div>
     </div>
-    
+
   )
 }

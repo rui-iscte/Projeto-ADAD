@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { openContractCall } from '@stacks/connect';
 import {
@@ -15,7 +15,7 @@ import CommentCard from "../components/CommentCard";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
-const bytes = utf8ToBytes('foo'); 
+const bytes = utf8ToBytes('foo');
 const bufCV = bufferCV(bytes);
 
 export default function App() {
@@ -30,10 +30,10 @@ export default function App() {
       const response = await fetch('http://localhost:3000/books/' + id, {
         method: 'GET',
         headers: {
-        'Content-Type': 'application/json'
+          'Content-Type': 'application/json'
         },
       });
-      
+
       const data = await response.json();
       console.log(data)
       setBook(data[0]);
@@ -49,10 +49,10 @@ export default function App() {
       const response = await fetch('http://localhost:3000/users/all/', {
         method: 'GET',
         headers: {
-        'Content-Type': 'application/json'
+          'Content-Type': 'application/json'
         },
       });
-      
+
       const data = await response.json();
       console.log(data)
       setUsers(Array.isArray(data) ? data : []);
@@ -71,14 +71,14 @@ export default function App() {
 
   function formatDate(date) {
     var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
 
-    if (month.length < 2) 
-        month = '0' + month;
-    if (day.length < 2) 
-        day = '0' + day;
+    if (month.length < 2)
+      month = '0' + month;
+    if (day.length < 2)
+      day = '0' + day;
 
     return [day, month, year].join('-');
   }
@@ -124,7 +124,7 @@ export default function App() {
       <p><strong>Categories: </strong>{categories}</p>
       <p><strong>Price: </strong>{price}€</p>
       <p><strong>Average Score: </strong>{average_score}</p>
-      { comments.length === 0 ? (
+      {comments.length === 0 ? (
         <div>
           <br></br>
           <p>No Comments!</p>
@@ -133,15 +133,15 @@ export default function App() {
         <div>
           <br></br>
           <CardGroup>
-          <Row xs={1} md={1} className="d-flex justify-content-around">
-          {userFromComment.map((comment) => (
-            <CommentCard 
-                key={comment._id} 
-                {...comment} 
-            />
-          ))}
-          </Row>
-        </CardGroup>
+            <Row xs={1} md={1} className="d-flex justify-content-around">
+              {userFromComment.map((comment) => (
+                <CommentCard
+                  key={comment._id}
+                  {...comment}
+                />
+              ))}
+            </Row>
+          </CardGroup>
         </div>
       )}
     </div>

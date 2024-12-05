@@ -110,6 +110,7 @@ router.post('/', async (req, res) => {
             insertFields.status = req.body.status;
             insertFields.authors = req.body.authors;
             insertFields.categories = req.body.categories;
+            insertFields.price = req.body.price;
 
             result = await db.collection('books').insertOne(insertFields);
         } else {
@@ -130,7 +131,8 @@ router.post('/', async (req, res) => {
                 longDescription: book.longDescription,
                 status: book.status,
                 authors: book.authors,
-                categories: book.categories
+                categories: book.categories,
+                price: book.price
             }));
             result = await db.collection('books').insertMany(insertFields);
         }
@@ -186,6 +188,7 @@ router.put('/:id', async (req, res) => {
         if (req.body.status) updateFields.status = req.body.status;
         if (req.body.authors) updateFields.authors = req.body.authors;
         if (req.body.categories) updateFields.categories = req.body.categories;
+        if (req.body.price) updateFields.price = req.body.price;
 
         const result = await db.collection('books')
             .updateOne(

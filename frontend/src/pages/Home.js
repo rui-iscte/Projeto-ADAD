@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 
 export default function App() {
 
@@ -26,9 +26,9 @@ export default function App() {
               <li>/users get page DONE</li>
               <li>/book/:id get page DONE</li>
               <li>/user/:id get page DONE</li>
-              <li>/book/ post page TODO</li>
+              <li>/book/ post page DONE</li>
               <li>/user/ post page TODO</li>
-              <li>/book/ put page TODO</li>
+              <li>/book/ put page DONE</li>
               <li>/user/ put page TODO</li>
               <li>/book/:id delete DONE (button: the button is inside the BookCard instead of the actual /book/:id, we thought it looked better this way)</li>
               <li>/user/:id delete DONE (button: the button is inside the UserCard instead of the actual /user/:id, we thought it looked better this way)</li>
@@ -38,7 +38,7 @@ export default function App() {
       </div>
 
       <div className="container mt-5 mb-5">
-      <div className="row mb-5">
+        <div className="row mb-5">
           <div className="col-md-4">
             <h2>Requirements for evaluation</h2>
             <ul>
@@ -52,14 +52,14 @@ export default function App() {
           </div>
           <div className="col-md-4">
             <h2>Assessment components</h2>
-            <p>Group report on the work done by each student of the group;<br/>
-            Application developed;<br/>
-            Oral discussion with individual questions.</p>
+            <p>Group report on the work done by each student of the group;<br />
+              Application developed;<br />
+              Oral discussion with individual questions.</p>
           </div>
           <div className="col-md-4">
             <h2>Delivery dates</h2>
-            <p><span className="text-decoration-underline">Frontend Project upload</span> on Moodle by <strong>December 15 at 23h59</strong>;<br/>
-            <span className="text-decoration-underline">Demo and answering to questions of the second part of the project (Frontend)</span> <strong>December 17</strong>.</p>
+            <p><span className="text-decoration-underline">Frontend Project upload</span> on Moodle by <strong>December 15 at 23h59</strong>;<br />
+              <span className="text-decoration-underline">Demo and answering to questions of the second part of the project (Frontend)</span> <strong>December 17</strong>.</p>
           </div>
         </div>
         {/* <div className="row mt-5">

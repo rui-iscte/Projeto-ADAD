@@ -39,7 +39,7 @@ function BookCard(props) {
         <br></br>
         <Card.Text><strong>Authors: </strong>{authors}</Card.Text>
         <Card.Text><strong>Categories: </strong>{categories}</Card.Text>
-        <Card.Text><strong>Short Description: </strong>{shortDescription}</Card.Text>
+        {/* <Card.Text><strong>Short Description: </strong>{shortDescription}</Card.Text> */}
         <Card.Text><strong>Price: </strong>{price}€</Card.Text>
         <br></br>
         <div className="d-flex justify-content-between">

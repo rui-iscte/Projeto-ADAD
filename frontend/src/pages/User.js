@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { openContractCall } from '@stacks/connect';
 import {
@@ -15,7 +15,7 @@ import ReviewCard from "../components/ReviewCard";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
-const bytes = utf8ToBytes('foo'); 
+const bytes = utf8ToBytes('foo');
 const bufCV = bufferCV(bytes);
 
 export default function App() {
@@ -30,10 +30,10 @@ export default function App() {
       const response = await fetch('http://localhost:3000/users/' + id, {
         method: 'GET',
         headers: {
-        'Content-Type': 'application/json'
+          'Content-Type': 'application/json'
         },
       });
-      
+
       const data = await response.json();
       console.log(data)
       setUser(data[0]);
@@ -49,10 +49,10 @@ export default function App() {
       const response = await fetch('http://localhost:3000/books/all/', {
         method: 'GET',
         headers: {
-        'Content-Type': 'application/json'
+          'Content-Type': 'application/json'
         },
       });
-      
+
       const data = await response.json();
       console.log(data)
       setBooks(Array.isArray(data) ? data : []);
@@ -86,7 +86,7 @@ export default function App() {
   }
   const year_of_birth = (user.year_of_birth && user.year_of_birth > 0) ? user.year_of_birth : "N/A";
   const job = user.job?.length > 0 ? user.job : "N/A";
-  
+
   return (
     <div className="container pt-5 pb-5">
       {/* <Button onClick={() => navigate(-1)} variant="outline-secundary">
@@ -98,7 +98,7 @@ export default function App() {
       <p><strong>Name: </strong>{name}</p>
       <p><strong>Year of Birth: </strong>{year_of_birth}</p>
       <p><strong>Job: </strong>{job}</p>
-      { reviews.length === 0 ? (
+      {reviews.length === 0 ? (
         <div>
           <br></br>
           <p>No Reviews!</p>
@@ -107,15 +107,15 @@ export default function App() {
         <div>
           <br></br>
           <CardGroup>
-          <Row xs={1} md={1} className="d-flex justify-content-around">
-          {bookFromReview.map((review) => (
-            <ReviewCard 
-                key={review.book_id} 
-                {...review} 
-            />
-          ))}
-          </Row>
-        </CardGroup>
+            <Row xs={1} md={1} className="d-flex justify-content-around">
+              {bookFromReview.map((review) => (
+                <ReviewCard
+                  key={review.book_id}
+                  {...review}
+                />
+              ))}
+            </Row>
+          </CardGroup>
         </div>
       )}
     </div>
