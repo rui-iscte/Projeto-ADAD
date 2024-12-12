@@ -27,9 +27,9 @@ export default function App() {
               <li>/book/:id get page DONE</li>
               <li>/user/:id get page DONE</li>
               <li>/book/ post page DONE</li>
-              <li>/user/ post page TODO</li>
+              <li>/user/ post page DONE</li>
               <li>/book/ put page DONE</li>
-              <li>/user/ put page TODO</li>
+              <li>/user/ put page DONE</li>
               <li>/book/:id delete DONE (button: the button is inside the BookCard instead of the actual /book/:id, we thought it looked better this way)</li>
               <li>/user/:id delete DONE (button: the button is inside the UserCard instead of the actual /user/:id, we thought it looked better this way)</li>
             </ul>
