@@ -37,6 +37,11 @@ export default function App() {
               <li>/book/jobReviews get reviews per jobs page DONE</li>
               <li>/comment/ post comment DONE</li>
               <li>/comment/ delete DONE (button: the button is inside the CommentCard instead of the actual /book/:id, we thought it looked better this way)</li>
+              <li>/livrarias/near/ get page DONE</li>
+              <li>/livrarias/near/route/ page get DONE</li>
+              <li>/livrarias/feiradolivro/ get DONE</li>
+              <li>/livrarias/:id get DONE</li>
+              <li>/livrarias/:id put DONE</li>
             </ul>
           </div>
         </div>
