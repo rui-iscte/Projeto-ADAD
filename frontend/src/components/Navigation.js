@@ -12,6 +12,7 @@ const Navigation = () => {
                             <NavLink  eventKey="1" as={Link} to="/">Home</NavLink>
                             <NavLink  eventKey="2" as={Link} to="/books">Books</NavLink>
                             <NavLink  eventKey="3" as={Link} to="/users">Users</NavLink>
+                            <NavLink  eventKey="4" as={Link} to="/livrarias">Livrarias</NavLink>
                         </Nav>
                     </Navbar.Collapse>
                     {/* {!userSession.isUserSignedIn() ? 

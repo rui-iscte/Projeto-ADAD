@@ -23,48 +23,44 @@ export default function App() {
   
   const [filtersVisible, setFiltersVisible] = useState(false);
 
-  const getBooks = useCallback(async (currentPage = 1) => {
+  const getBooks = async (currentPage = 1) => {
     try {
       let response;
-      if(limit !== undefined) {
-        response = await fetch('http://localhost:3000/books/top/' + limit + '?page=' + currentPage, {
+      if (limit !== undefined) {
+        response = await fetch(`http://localhost:3000/books/top/${limit}?page=${currentPage}`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
       } else {
-        response = await fetch('http://localhost:3000/books?page=' + currentPage, {
+        response = await fetch(`http://localhost:3000/books?page=${currentPage}`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
-
-      const totalBooks = await fetch('http://localhost:3000/books/all', {
-          method: 'GET',
-          headers: {
-          'Content-Type': 'application/json'
-          },
-        });
-
+  
       const data = await response.json();
-      const totalbooks = await totalBooks.json();
-      
-      if(totalbooks.length > 20) {
+  
+      if (Array.isArray(data)) {
+        setBooks(data); // Ensure books is always an array
+        setFilteredBooks(data); // Reset filteredBooks when books are fetched
+        setTotalPages(1); // If not paginated, set totalPages to 1
+      } else if (data.results && Array.isArray(data.results)) {
         setBooks(data.results);
+        setFilteredBooks(data.results);
         setPage(currentPage);
-        setTotalPages(data.info.pages);
+        setTotalPages(data.info.pages || 1);
       } else {
-        setBooks(data);
+        setBooks([]);
+        setFilteredBooks([]);
         setTotalPages(1);
       }
-
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching books:', error);
+      setBooks([]);
+      setFilteredBooks([]);
     }
-  }, [limit]);
+  };
+  
 
   const handleNextPage = () => {
     if (page < totalPages) {
@@ -83,50 +79,58 @@ export default function App() {
   }, [limit]);
 
   const handleChange = (e) => {
-    e.preventDefault();
     const newLimit = e.target.elements.limit.value;
-    setLimit(newLimit);
+    if (newLimit.length > 0) {
+      setPage(1);
+      e.preventDefault();
+      setLimit(newLimit);
+      console.log(typeof newLimit)
+    } else {
+      alert('Enter valid limit!');
+    }
   };
 
   const applyFilters = () => {
-    let filtered = books;
+    if (!Array.isArray(books) || books.length === 0) {
+      setFilteredBooks([]); // Ensure filteredBooks is always an array
+      return;
+    }
   
-    // Price filter
+    let filtered = [...books]; // Make a copy of books to filter
+    
+    // Apply filters here
     if (priceMin) {
-      filtered = filtered.filter((book) => book.price >= priceMin);
+      filtered = filtered.filter((book) => book.price >= parseFloat(priceMin));
     }
     if (priceMax) {
-      filtered = filtered.filter((book) => book.price <= priceMax);
+      filtered = filtered.filter((book) => book.price <= parseFloat(priceMax));
     }
-  
-    // Categories filter
     if (categories) {
-      const categoryArray = categories.split(',').map((category) => category.trim().toLowerCase());
+      const categoryArray = categories.split(',').map((c) => c.trim().toLowerCase());
       filtered = filtered.filter((book) =>
-        book.categories && Array.isArray(book.categories) && book.categories.some((category) => 
-          categoryArray.includes(category.toLowerCase())
-        )
+        Array.isArray(book.categories) &&
+        book.categories.some((category) => categoryArray.includes(category.toLowerCase()))
       );
     }
-  
-    // Authors filter
     if (authors) {
-      const authorsArray = authors.split(',').map((author) => authors.trim().toLowerCase());
+      const authorArray = authors.split(',').map((a) => a.trim().toLowerCase());
       filtered = filtered.filter((book) =>
-        book.authors && Array.isArray(book.authors) && book.authors.some((author) => 
-          authorsArray.includes(author.toLowerCase())
-        )
+        Array.isArray(book.authors) &&
+        book.authors.some((author) => authorArray.includes(author.toLowerCase()))
       );
     }
   
-    setFilteredBooks(filtered);
+    setFilteredBooks(filtered); // Update filteredBooks with the filtered results
   };
-  
 
   // Trigger filter on any change in filter states
   useEffect(() => {
-    applyFilters();
-  }, [priceMin, priceMax, categories, authors, books]);
+    if (!priceMin && !priceMax && !categories && !authors) {
+      setFilteredBooks(books); // Ensure `filteredBooks` is always an array
+    } else {
+      applyFilters();
+    }
+  }, [priceMin, priceMax, categories, authors, books]);  
 
   // Reset filter states
   const resetFilters = () => {
@@ -138,17 +142,17 @@ export default function App() {
 
   return (
     <div className="container pt-5 pb-5">
-      <Button onClick={() => navigate(-1)} variant="outline-secondary">
+      <Button href={"/"}/* onClick={() => navigate(-1)} */ variant="outline-secondary">
         <FontAwesomeIcon icon={faAngleLeft} />
       </Button>
       <br /><br />
       <h2>Books</h2>
-      <Button href={"/book/"} target="_blank" variant="outline-success">
+      <Button href={"/postbook/"} target="_blank" variant="outline-success">
         <FontAwesomeIcon icon={faPlus} />
       </Button>
       <form onSubmit={handleChange}>
         <label htmlFor="limit">Limit:</label>
-        <input type="text" id="limit" name="limit" defaultValue={limit || ""} />
+        <input type="number" step="0" min="1" /* pattern="[1-9][0-9]{0,10}" */ id="limit" name="limit" defaultValue={limit || ""}></input>
         <Button type="submit" variant="outline-success">
           <FontAwesomeIcon icon={faFilter} />
         </Button>
@@ -224,19 +228,17 @@ export default function App() {
         <br></br>
 
       {/* Book Cards */}
-      {filteredBooks.length === 0 ? (
+      {Array.isArray(filteredBooks) && filteredBooks.length === 0 ? (
         <div className="alert alert-info mt-4">No books found.</div>
       ) : (
         <CardGroup>
           <Row xs={1} md={2} className="d-flex justify-content-around">
-            {filteredBooks.map((book) => {
-              return (
-                <BookCard 
-                  key={book._id} 
-                  {...book}
-                />
-              );
-            })}
+            {filteredBooks.map((book) => (
+              <BookCard 
+                key={book._id} 
+                {...book}
+              />
+            ))}
           </Row>
         </CardGroup>
       )}

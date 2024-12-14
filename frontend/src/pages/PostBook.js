@@ -31,7 +31,7 @@ export default function App() {
     const { name, value } = e.target;
     setBook((prevBook) => ({
       ...prevBook,
-      [name]: value,
+      [name]: name === "pageCount" || name === "price" ? Number(value) : value,
     }));
   };
 
