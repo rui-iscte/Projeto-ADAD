@@ -7,6 +7,9 @@ import {
 import { utf8ToBytes } from '@stacks/common';
 import { userSession } from '../auth';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
@@ -66,6 +69,10 @@ export default function App() {
 
   return (
     <div className="container pt-5 pb-5">
+      <Button href={"/books"}/* onClick={() => navigate(-1)} */ variant="outline-secundary">
+        <FontAwesomeIcon icon={faAngleLeft} />
+      </Button>
+      <br></br><br></br>
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>Title*</Form.Label>

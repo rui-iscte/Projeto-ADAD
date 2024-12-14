@@ -52,7 +52,7 @@ function UserCard(props) {
           <Button href={"/user/" + props._id} target="_blank" variant="outline-primary">
             <FontAwesomeIcon icon={faExternalLink} />
           </Button>
-          <Button href={"/user/" + props._id} variant="outline-warning">
+          <Button href={"/edituser/" + props._id} variant="outline-warning">
             <FontAwesomeIcon icon={faPenToSquare} />
           </Button>
           <Button onClick={handleDelete} variant="outline-danger">

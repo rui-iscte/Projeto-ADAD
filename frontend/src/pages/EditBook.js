@@ -7,6 +7,9 @@ import {
 import { utf8ToBytes } from '@stacks/common';
 import { userSession } from '../auth';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
@@ -82,18 +85,22 @@ export default function App() {
 
   const title = book.title?.length > 0 ? book.title : '';
   const isbn = book.isbn?.length > 0 ? book.isbn : '';
-  const pageCount = (book.pageCount && book.pageCount > 0) ? book.pageCount : '';
+  const pageCount = (book.pageCount && book.pageCount > 0) ? Number(book.pageCount) : '';
   const publishedDate = book.publishedDate?.length > 0 ? new Date(book.publishedDate).toISOString().split(".")[0] : '';
   const thumbnailUrl = book.thumbnailUrl?.length > 0 ? book.thumbnailUrl : '';
   const shortDescription = book.shortDescription?.length > 0 ? book.shortDescription : '';
   const longDescription = book.longDescription?.length > 0 ? book.longDescription : '';
   const status = book.status?.length > 0 ? book.status : '';
-  const price = (book.price && book.price > 0) ? book.price : '';
+  const price = (book.price && book.price > 0) ? Number(book.price) : '';
   const authors = Array.isArray(book.authors) ? book.authors.join(", ") : book.authors || '';
   const categories = Array.isArray(book.categories) ? book.categories.join(", ") : book.categories || '';
 
   return (
     <div className="container pt-5 pb-5">
+      <Button href={"/books"}/* onClick={() => navigate(-1)} */ variant="outline-secundary">
+        <FontAwesomeIcon icon={faAngleLeft} />
+      </Button>
+      <br></br><br></br>
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>Title*</Form.Label>
@@ -107,7 +114,7 @@ export default function App() {
 
         <Form.Group className="mb-3">
           <Form.Label>Page Count</Form.Label>
-          <Form.Control name="pageCount" type="text" pattern="[0-9]{}" placeholder="Enter page count" value={pageCount} onChange={handleChange} />
+          <Form.Control name="pageCount" type="number" step="0" min="1" /* pattern="[0-9]{}" */ placeholder="Enter page count" value={pageCount} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
@@ -137,7 +144,7 @@ export default function App() {
 
         <Form.Group className="mb-3">
           <Form.Label>Price</Form.Label>
-          <Form.Control name="price" type="text" pattern="[0-9]+([\.][0-9]{0,2})?" placeholder="Enter price" value={price} onChange={handleChange} />
+          <Form.Control name="price" type="number" step="0.01" min="0" /* pattern="[0-9]+([\.][0-9]{0,2})?" */ placeholder="Enter price" value={price} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">

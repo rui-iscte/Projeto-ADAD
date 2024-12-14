@@ -90,10 +90,15 @@ export default function App() {
   }, [limit]);
 
   const handleChange = (e) => {
-    setPage(1);
-    e.preventDefault();
     const newLimit = e.target.elements.limit.value;
-    setLimit(newLimit);
+    if (newLimit.length > 0) {
+      setPage(1);
+      e.preventDefault();
+      setLimit(newLimit);
+      console.log(typeof newLimit)
+    } else {
+      alert('Enter valid limit!');
+    }
   };
 
   return (
@@ -108,7 +113,7 @@ export default function App() {
       </Button>
       <form onSubmit={handleChange}>
         <label htmlFor="limit">Limit:</label>
-        <input type="text" pattern="[1-9][0-9]{0,10}" id="limit" name="limit" defaultValue={limit || ""}></input>
+        <input type="number" step="0" min="1" /* pattern="[1-9][0-9]{0,10}" */ id="limit" name="limit" defaultValue={limit || ""}></input>
         <Button type="submit" variant="outline-success" >
           <FontAwesomeIcon icon={faFilter} />
         </Button>

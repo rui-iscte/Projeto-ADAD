@@ -6,7 +6,7 @@ import UserCard from "../components/UserCard";
 import { useNavigate } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function App() {
   let navigate = useNavigate();
@@ -57,6 +57,9 @@ export default function App() {
       </Button>
       <br></br><br></br>
       <h2>Users</h2>
+      <Button href={"/postuser"} variant="outline-success">
+        <FontAwesomeIcon icon={faPlus} />
+      </Button>
       <br></br><br></br>
       <CardGroup>
         <Row xs={1} md={2} className="d-flex justify-content-around">
