@@ -11,7 +11,11 @@ import Button from "react-bootstrap/Button";
 import BookCard from "../components/BookCard";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
+import {
+	faAngleLeft,
+	faFilter,
+	faPlus,
+} from "@fortawesome/free-solid-svg-icons";
 
 const bytes = utf8ToBytes("foo");
 const bufCV = bufferCV(bytes);
@@ -19,12 +23,18 @@ const bufCV = bufferCV(bytes);
 export default function App() {
 	let params = useParams();
 	let navigate = useNavigate();
+	let [page, setPage] = useState(1);
+	let [totalPages, setTotalPages] = useState(1);
 	let [books, setBooks] = useState([]);
 
-	const getBook = async (id) => {
+	const getBook = async (id, currentPage = 1) => {
 		try {
+			if (isNaN(Number(currentPage))) currentPage = 1;
 			const response = await fetch(
-				"http://localhost:3000/livrarias/" + id,
+				"http://localhost:3000/livrarias/" +
+					id +
+					"?page=" +
+					Number(currentPage),
 				{
 					method: "GET",
 					headers: {
@@ -46,8 +56,23 @@ export default function App() {
 			}
 			setBooks(bookData);
 			console.log(bookData);
+			setPage(currentPage);
+			if (data.info == null) setTotalPages(1);
+			else setTotalPages(data.info.pages);
 		} catch (error) {
 			console.error("Error:", error);
+		}
+	};
+
+	const handleNextPage = () => {
+		if (page < totalPages) {
+			getBook(params.id, page + 1);
+		}
+	};
+
+	const handlePreviousPage = () => {
+		if (page > 1) {
+			getBook(params.id, page - 1);
 		}
 	};
 
@@ -74,6 +99,12 @@ export default function App() {
 			{/* <Button onClick={() => navigate(-1)} variant="outline-secundary">
             <FontAwesomeIcon icon={faAngleLeft} />
           </Button> */}
+			<Button
+				href={"/putlivraria/" + params.id}
+				variant="outline-success"
+			>
+				<FontAwesomeIcon icon={faPlus} />
+			</Button>
 			<br></br>
 			<br></br>
 			<CardGroup>
@@ -85,6 +116,40 @@ export default function App() {
 						})}
 				</Row>
 			</CardGroup>
+			<div className="d-flex justify-content-between mt-4">
+				{page !== 1 ? (
+					<Button
+						onClick={handlePreviousPage}
+						variant="outline-primary"
+					>
+						Previous Page
+					</Button>
+				) : (
+					<Button
+						onClick={handlePreviousPage}
+						variant="outline-secundary"
+						disabled={page === 1}
+					>
+						Previous Page
+					</Button>
+				)}
+				<span>
+					Page {page} of {totalPages}
+				</span>
+				{page !== totalPages ? (
+					<Button onClick={handleNextPage} variant="outline-primary">
+						Next Page
+					</Button>
+				) : (
+					<Button
+						onClick={handleNextPage}
+						variant="outline-secundary"
+						disabled={page === totalPages}
+					>
+						Next Page
+					</Button>
+				)}
+			</div>
 		</div>
 	);
 }

@@ -6,7 +6,7 @@ import turf from "turf";
 const router = express.Router();
 
 function typeId(id) {
-	if (id.length >= 24) return ObjectId(id);
+	if (id.length >= 24) return new ObjectId(id);
 	else return parseInt(id);
 }
 
@@ -28,7 +28,7 @@ router.get("/near/", async (req, res) => {
 	let page = req.query.page;
 
 	if (!longitude || !latitude) {
-		return res.status(400).send("Bad user input");
+		return res.status(400).send({ error: "Bad user input" });
 	}
 
 	longitude = Number(longitude);
@@ -37,20 +37,22 @@ router.get("/near/", async (req, res) => {
 	minDistance = Number(minDistance);
 
 	if (isNaN(longitude) || isNaN(latitude)) {
-		return res.status(400).send("Bad user input");
+		return res.status(400).send({ error: "Bad user input" });
 	}
 	if (isNaN(maxDistance)) maxDistance = 1000;
 
 	if (isNaN(minDistance)) minDistance = 0;
 
 	if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
-		return res.status(400).send("Invalid latitude/longitude values");
+		return res
+			.status(400)
+			.send({ error: "Invalid latitude/longitude values" });
 	}
 
 	if (typeof page === "undefined") page = 1;
 	else page = Number(page);
 
-	if (isNaN(page)) return res.status(400).send("Bad user input");
+	if (isNaN(page)) return res.status(400).send({ error: "Bad user input" });
 
 	try {
 		const defaultDocPerPage = 20;
@@ -92,12 +94,12 @@ router.get("/near/", async (req, res) => {
 		const pageCount = Math.ceil(docCount / defaultDocPerPage);
 
 		if (results.length == 0) {
-			return res.status(400).send("No results");
+			return res.status(400).send({ error: "No results" });
 		}
 
-		if (page < 1) return res.status(400).send("Bad user input");
+		if (page < 1) return res.status(400).send({ error: "Bad user input" });
 		else if (page > pageCount)
-			return res.status(400).send("Bad user input");
+			return res.status(400).send({ error: "Bad user input" });
 
 		if (docCount > 20) {
 			let message = {
@@ -115,7 +117,7 @@ router.get("/near/", async (req, res) => {
 			res.status(200).send(results);
 		}
 	} catch (e) {
-		res.status(500).send("Internal Error");
+		res.status(500).send({ error: "Internal Error" });
 	}
 });
 
@@ -128,7 +130,7 @@ router.get("/near/route", async (req, res) => {
 	let page = req.query.page;
 
 	if (!longitude1 || !latitude1 || !longitude2 || !latitude2) {
-		return res.status(400).send("Bad user input");
+		return res.status(400).send({ error: "Internal Error" });
 	}
 
 	longitude1 = Number(longitude1);
@@ -142,7 +144,7 @@ router.get("/near/route", async (req, res) => {
 		isNaN(longitude2) ||
 		isNaN(latitude2)
 	) {
-		return res.status(400).send("Bad user input");
+		return res.status(400).send({ error: "Internal Error" });
 	}
 
 	if (
@@ -151,13 +153,15 @@ router.get("/near/route", async (req, res) => {
 		Math.abs(latitude2) > 90 ||
 		Math.abs(longitude2) > 180
 	) {
-		return res.status(400).send("Invalid latitude/longitude values");
+		return res
+			.status(400)
+			.send({ error: "Invalid latitude/longitude values" });
 	}
 
 	if (typeof page === "undefined") page = 1;
 	else page = Number(page);
 
-	if (isNaN(page)) return res.status(400).send("Bad user input");
+	if (isNaN(page)) return res.status(400).send({ error: "Bad user input" });
 
 	try {
 		const defaultDocPerPage = 20;
@@ -196,12 +200,12 @@ router.get("/near/route", async (req, res) => {
 		const pageCount = Math.ceil(docCount / defaultDocPerPage);
 
 		if (results.length == 0) {
-			return res.status(400).send("No results");
+			return res.status(400).send({ error: "No results" });
 		}
 
-		if (page < 1) return res.status(400).send("Bad user input");
+		if (page < 1) return res.status(400).send({ error: "Bad user input" });
 		else if (page > pageCount)
-			return res.status(400).send("Bad user input");
+			return res.status(400).send({ error: "Bad user input" });
 
 		if (docCount > 20) {
 			let message = {
@@ -220,7 +224,7 @@ router.get("/near/route", async (req, res) => {
 		}
 	} catch (e) {
 		console.log(e);
-		res.status(500).send("Internal Error");
+		res.status(500).send({ error: "Internal Error" });
 	}
 });
 
@@ -231,7 +235,7 @@ router.get("/near/count/", async (req, res) => {
 	let minDistance = req.query.min;
 
 	if (!latitude || !latitude) {
-		return res.status(400).send("Bad user input");
+		return res.status(400).send({ error: "Bad user input" });
 	}
 	longitude = Number(longitude);
 	latitude = Number(latitude);
@@ -239,14 +243,16 @@ router.get("/near/count/", async (req, res) => {
 	minDistance = Number(minDistance);
 
 	if (isNaN(longitude) || isNaN(latitude)) {
-		return res.status(400).send("Bad user input");
+		return res.status(400).send({ error: "Bad user input" });
 	}
 	if (isNaN(maxDistance)) maxDistance = 1000;
 
 	if (isNaN(minDistance)) minDistance = 0;
 
 	if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
-		return res.status(400).send("Invalid latitude/longitude values");
+		return res
+			.status(400)
+			.send({ error: "Invalid latitude/longitude values" });
 	}
 	try {
 		let result = await db
@@ -268,7 +274,7 @@ router.get("/near/count/", async (req, res) => {
 		res.status(200).send({ count: result.length });
 	} catch (e) {
 		console.log(e);
-		res.status(500).send("Internal Error");
+		res.status(500).send({ error: "Internal Error" });
 	}
 });
 
@@ -277,17 +283,19 @@ router.get("/feiradolivro/", async (req, res) => {
 	let latitude = req.query.lat;
 
 	if (!latitude || !latitude) {
-		return res.status(400).send("Bad user input");
+		return res.status(400).send({ error: "Bad user input" });
 	}
 	longitude = Number(longitude);
 	latitude = Number(latitude);
 
 	if (isNaN(longitude) || isNaN(latitude)) {
-		return res.status(400).send("Bad user input");
+		return res.status(400).send({ error: "Bad user input" });
 	}
 
 	if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
-		return res.status(400).send("Invalid latitude/longitude values");
+		return res
+			.status(400)
+			.send({ error: "Invalid latitude/longitude values" });
 	}
 	try {
 		let result = await db
@@ -315,7 +323,7 @@ router.get("/feiradolivro/", async (req, res) => {
 		res.status(200).send({ inside_Feira_do_Livro: dentroDaFeira });
 	} catch (e) {
 		console.log(e);
-		res.status(500).send("Internal Error");
+		res.status(500).send({ error: "Internal Error" });
 	}
 });
 
@@ -333,10 +341,11 @@ router.get("/:id", async (req, res) => {
 		if (typeof page === "undefined") page = 1;
 		else page = Number(page);
 
-		if (isNaN(page)) return res.status(400).send("Bad user input");
+		if (isNaN(page))
+			return res.status(400).send({ error: "Bad user input" });
 
 		if (!results) {
-			return res.status(400).send("Library not found");
+			return res.status(400).send({ error: "Library not found" });
 		}
 
 		let libraryBooks = results[0].books;
@@ -359,9 +368,10 @@ router.get("/:id", async (req, res) => {
 				libraryBooks.length / defaultDocPerPage
 			);
 
-			if (page < 1) return res.status(400).send("Bad user input");
+			if (page < 1)
+				return res.status(400).send({ error: "Bad user input" });
 			else if (page > pageCount)
-				return res.status(400).send("Bad user input");
+				return res.status(400).send({ error: "Bad user input" });
 
 			if (libraryBooks.length > 20) {
 				let message = {
@@ -381,11 +391,11 @@ router.get("/:id", async (req, res) => {
 				res.status(200).send(books);
 			}
 		} else {
-			res.status(400).send("Library does not have books");
+			res.status(400).send({ error: "Library does not have books" });
 		}
 	} catch (e) {
 		console.log(e);
-		res.status(500).send("Internal Error");
+		res.status(500).send({ error: "Internal Error" });
 	}
 });
 
@@ -396,9 +406,9 @@ router.put("/:id", async (req, res) => {
 		let libraryId = typeId(req.params.id);
 
 		if (!booksArray || booksArray.length == 0) {
-			return res
-				.send(`\"${booksArray}\" is not a valid JSON array.`)
-				.status(400);
+			return res.status(400).send({
+				error: `\"${booksArray}\" is not a valid JSON array.`,
+			});
 		}
 
 		let wrongIds = [];
@@ -415,7 +425,7 @@ router.put("/:id", async (req, res) => {
 		}
 
 		if (wrongIds.length > 0) {
-			return res.status(400).send("Books not found");
+			return res.status(400).send({ error: "Books not found" });
 		}
 
 		let result = await db
@@ -424,7 +434,7 @@ router.put("/:id", async (req, res) => {
 			.toArray();
 
 		if (result.length == 0) {
-			return res.status(400).send("Library not found");
+			return res.status(400).send({ error: "Library not found" });
 		}
 
 		if (result[0].books) bookIds = booksArray.concat(result[0].books);
@@ -449,13 +459,13 @@ router.put("/:id", async (req, res) => {
 		);
 
 		if (status.modifiedCount == 1) {
-			res.status(200).send("Books added to library");
+			res.status(200).send({ error: "Books added to library" });
 		} else {
-			res.status(400).send("Books not added to library");
+			res.status(400).send({ error: "Books not added to library" });
 		}
 	} catch (e) {
 		console.log(e);
-		res.status(500).send("Internal Error");
+		res.status(500).send({ error: "Internal Error" });
 	}
 });
 

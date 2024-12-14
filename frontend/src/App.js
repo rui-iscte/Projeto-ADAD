@@ -24,6 +24,7 @@ import PostUser from "./pages/PostUser";
 import Livrarias from "./pages/Livrarias";
 import Footer from "./components/Footer";
 import Livraria from "./pages/Livraria";
+import PutLivraria from "./pages/PutLivraria";
 
 function App() {
 	const [userData, setUserData] = useState(undefined);
@@ -49,11 +50,12 @@ function App() {
 					<Route path="/book/:id" element={<Book />} />
 					<Route path="/user/:id" element={<User />} />
 					<Route path="/editbook/:id" element={<EditBook />} />
-          			<Route path="/edituser/:id" element={<EditUser />} />
+					<Route path="/edituser/:id" element={<EditUser />} />
 					<Route path="/postbook" element={<PostBook />} />
-          			<Route path="/postuser" element={<PostUser />} />
+					<Route path="/postuser" element={<PostUser />} />
 					<Route path="/livrarias" element={<Livrarias />} />
 					<Route path="/livraria/:id" element={<Livraria />} />
+					<Route path="/putlivraria/:id" element={<PutLivraria />} />
 				</Routes>
 				<Footer />
 			</Router>
