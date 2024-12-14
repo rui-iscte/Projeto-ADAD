@@ -20,10 +20,10 @@ function makeInfo(documentCount, pageCount, baseURL, currentPage) {
 }
 
 router.get("/near/", async (req, res) => {
-	let longitude = req.body.long;
-	let latitude = req.body.lat;
-	let maxDistance = req.body.max;
-	let minDistance = req.body.min;
+	let longitude = req.query.long;
+	let latitude = req.query.lat;
+	let maxDistance = req.query.max;
+	let minDistance = req.query.min;
 
 	let page = req.query.page;
 
@@ -99,32 +99,31 @@ router.get("/near/", async (req, res) => {
 		else if (page > pageCount)
 			return res.status(400).send("Bad user input");
 
-        if (docCount > 20) {
-            let message = {
-                info: makeInfo(
-                    docCount,
-                    pageCount,
-                    "http://localhost:3000/livrarias/near/?page=",
-                    page
-                ),
-                results,
-            };
-    
-            res.status(200).send(message);
-        } else {
-            res.status(200).send(results);
-        }
-		
+		if (docCount > 20) {
+			let message = {
+				info: makeInfo(
+					docCount,
+					pageCount,
+					"http://localhost:3000/livrarias/near/?page=",
+					page
+				),
+				results,
+			};
+
+			res.status(200).send(message);
+		} else {
+			res.status(200).send(results);
+		}
 	} catch (e) {
 		res.status(500).send("Internal Error");
 	}
 });
 
 router.get("/near/route", async (req, res) => {
-	let longitude1 = req.body.long1;
-	let latitude1 = req.body.lat1;
-	let longitude2 = req.body.long2;
-	let latitude2 = req.body.lat2;
+	let longitude1 = req.query.long1;
+	let latitude1 = req.query.lat1;
+	let longitude2 = req.query.long2;
+	let latitude2 = req.query.lat2;
 
 	let page = req.query.page;
 
@@ -205,21 +204,20 @@ router.get("/near/route", async (req, res) => {
 			return res.status(400).send("Bad user input");
 
 		if (docCount > 20) {
-            let message = {
-                info: makeInfo(
-                    docCount,
-                    pageCount,
-                    "http://localhost:3000/livrarias/near/route/?page=",
-                    page
-                ),
-                results,
-            };
-    
-            res.status(200).send(message);
-        } else {
-            res.status(200).send(results);
-        }
+			let message = {
+				info: makeInfo(
+					docCount,
+					pageCount,
+					"http://localhost:3000/livrarias/near/route/?page=",
+					page
+				),
+				results,
+			};
 
+			res.status(200).send(message);
+		} else {
+			res.status(200).send(results);
+		}
 	} catch (e) {
 		console.log(e);
 		res.status(500).send("Internal Error");
@@ -227,10 +225,10 @@ router.get("/near/route", async (req, res) => {
 });
 
 router.get("/near/count/", async (req, res) => {
-	let longitude = req.body.long;
-	let latitude = req.body.lat;
-	let maxDistance = req.body.max;
-	let minDistance = req.body.min;
+	let longitude = req.query.long;
+	let latitude = req.query.lat;
+	let maxDistance = req.query.max;
+	let minDistance = req.query.min;
 
 	if (!latitude || !latitude) {
 		return res.status(400).send("Bad user input");
@@ -275,8 +273,8 @@ router.get("/near/count/", async (req, res) => {
 });
 
 router.get("/feiradolivro/", async (req, res) => {
-	let longitude = req.body.long;
-	let latitude = req.body.lat;
+	let longitude = req.query.long;
+	let latitude = req.query.lat;
 
 	if (!latitude || !latitude) {
 		return res.status(400).send("Bad user input");
@@ -365,26 +363,28 @@ router.get("/:id", async (req, res) => {
 			else if (page > pageCount)
 				return res.status(400).send("Bad user input");
 
-		if (libraryBooks.length > 20) {
-            let message = {
-                info: makeInfo(
-                    libraryBooks.length,
-                    pageCount,
-                    "http://localhost:3000/livrarias/" + typeId(req.params.id) + "?page=",
-                    page
-                ),
-                results,
-            };
-    
-            res.status(200).send(message);
-        } else {
-            res.status(200).send(books);
-        }
+			if (libraryBooks.length > 20) {
+				let message = {
+					info: makeInfo(
+						libraryBooks.length,
+						pageCount,
+						"http://localhost:3000/livrarias/" +
+							typeId(req.params.id) +
+							"?page=",
+						page
+					),
+					results,
+				};
+
+				res.status(200).send(message);
+			} else {
+				res.status(200).send(books);
+			}
 		} else {
 			res.status(400).send("Library does not have books");
 		}
 	} catch (e) {
-        console.log(e)
+		console.log(e);
 		res.status(500).send("Internal Error");
 	}
 });
