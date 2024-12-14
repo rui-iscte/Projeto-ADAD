@@ -16,6 +16,7 @@ import Home from "./pages/Home";
 import Books from "./pages/Books";
 import Users from "./pages/Users";
 import Book from "./pages/Book";
+import JobReviews from "./pages/JobReviews";
 import User from "./pages/User";
 import EditBook from "./pages/EditBook";
 import EditUser from "./pages/EditUser";
@@ -47,6 +48,7 @@ function App() {
 					<Route path="/books" element={<Books />} />
 					<Route path="/users" element={<Users />} />
 					<Route path="/book/:id" element={<Book />} />
+					<Route path="/books/job" element={<JobReviews />} />
 					<Route path="/user/:id" element={<User />} />
 					<Route path="/editbook/:id" element={<EditBook />} />
           			<Route path="/edituser/:id" element={<EditUser />} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { openContractCall } from '@stacks/connect';
 import {
@@ -15,7 +15,7 @@ import CommentCard from "../components/CommentCard";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
-const bytes = utf8ToBytes('foo');
+const bytes = utf8ToBytes('foo'); 
 const bufCV = bufferCV(bytes);
 
 export default function App() {
@@ -24,16 +24,19 @@ export default function App() {
   let [book, setBook] = useState(1);
   let [comments, setComments] = useState([]);
   let [users, setUsers] = useState([]);
+  let [newComment, setNewComment] = useState("");
+  let [userId, setUserId] = useState("");
+  let [commentPosted, setCommentPosted] = useState(false);
 
   const getBook = async (id) => {
     try {
       const response = await fetch('http://localhost:3000/books/' + id, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
         },
       });
-
+      
       const data = await response.json();
       console.log(data)
       setBook(data[0]);
@@ -49,10 +52,10 @@ export default function App() {
       const response = await fetch('http://localhost:3000/users/all/', {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
         },
       });
-
+      
       const data = await response.json();
       console.log(data)
       setUsers(Array.isArray(data) ? data : []);
@@ -71,16 +74,68 @@ export default function App() {
 
   function formatDate(date) {
     var d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
 
-    if (month.length < 2)
-      month = '0' + month;
-    if (day.length < 2)
-      day = '0' + day;
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
 
     return [day, month, year].join('-');
+  }
+
+  const addComment = async (event) => {
+    event.preventDefault();
+
+    // Ensure the user ID and comment text are not empty
+    if (newComment.trim() && userId.trim()) {
+      try {
+        const response = await fetch('http://localhost:3000/comments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            book_id: book._id,   // Using snake_case for backend compatibility
+            user_id: userId,     // Using snake_case for backend compatibility
+            comment: newComment
+          })
+        });
+
+        if (response.ok) {
+          setNewComment(""); // Clear the input field
+          setUserId(""); // Clear the user ID input field
+          getBook(book._id); // Refresh comments after adding
+          setCommentPosted(true); // Set success state to true
+          setTimeout(() => setCommentPosted(false), 3000); // Hide the message after 3 seconds
+        } else {
+          console.error('Failed to add comment');
+        }
+      } catch (error) {
+        console.error('Error adding comment:', error);
+      }
+    } else {
+      alert('Please enter a comment and a valid user ID.');
+    }
+  };
+
+  // Function to delete a comment
+  const deleteComment = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/comments/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        getBook(book._id); // Refresh comments after deletion
+      } else {
+        console.error('Failed to delete comment');
+      }
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    }
   }
 
   const userFromComment = comments.map((comment) => {
@@ -124,26 +179,53 @@ export default function App() {
       <p><strong>Categories: </strong>{categories}</p>
       <p><strong>Price: </strong>{price}€</p>
       <p><strong>Average Score: </strong>{average_score}</p>
-      {comments.length === 0 ? (
-        <div>
-          <br></br>
-          <p>No Comments!</p>
+      
+      <h3>Comments:</h3> <br></br>
+      {/* Success Message After Posting Comment */}
+      {commentPosted && (
+        <div className="alert alert-success" role="alert">
+          You've posted a comment successfully!
         </div>
+      )}
+
+      {/* Comment Input Form */}
+      <form onSubmit={addComment}>
+        <div className="mb-3">
+          <label htmlFor="userId" className="form-label">User ID</label>
+          <input 
+            type="number" 
+            id="userId" 
+            value={userId} 
+            onChange={(e) => setUserId(e.target.value)} 
+            className="form-control" 
+            required 
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="comment" className="form-label">Comment</label>
+          <textarea 
+            id="comment" 
+            value={newComment} 
+            onChange={(e) => setNewComment(e.target.value)} 
+            className="form-control" 
+            rows="4" 
+            required 
+          ></textarea>
+        </div>
+        <button type="submit" className="btn btn-primary">Post Comment</button>
+      </form>
+      <br></br>
+
+      {/* Display Comments */}
+      {comments.length === 0 ? (
+        <p>No comments yet.</p>
       ) : (
         <div>
-          <br></br>
-          <CardGroup>
-            <Row xs={1} md={1} className="d-flex justify-content-around">
-              {userFromComment.map((comment) => (
-                <CommentCard
-                  key={comment._id}
-                  {...comment}
-                />
-              ))}
-            </Row>
-          </CardGroup>
+          {userFromComment.map((comment) => (
+            <CommentCard key={comment._id} {...comment} deleteComment={() => deleteComment(comment._id)}/>
+          ))}
         </div>
       )}
     </div>
-  )
+  );
 }
