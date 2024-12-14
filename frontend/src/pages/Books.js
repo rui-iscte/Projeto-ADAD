@@ -85,8 +85,6 @@ export default function App() {
       e.preventDefault();
       setLimit(newLimit);
       console.log(typeof newLimit)
-    } else {
-      alert('Enter valid limit!');
     }
   };
 

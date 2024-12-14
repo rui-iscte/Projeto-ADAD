@@ -19,7 +19,15 @@ const bufCV = bufferCV(bytes);
 export default function App() {
   let params = useParams();
   let navigate = useNavigate();
-  let [user, setUser] = useState(1);
+  
+  
+  let [user, setUser] = useState({
+    first_name: "",
+    last_name: "",
+    year_of_birth: "",
+    job: "",
+    reviews: ""
+  });
 
   /* useEffect(() => {
     let id = params.id;
@@ -31,22 +39,23 @@ export default function App() {
     const { name, value } = e.target;
     setUser((prevUser) => ({
       ...prevUser,
-      [name]: value,
+      [name]: name === "year_of_birth" ? Number(value) : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newReviews = user.reviews.split(";").map((reviewString) => {
-      const parts = reviewString.split(",").map((part) => part.trim());
-      return {
-        book_id: parts[0]?.split(":")[1]?.trim() || "",
-        score: Number(parts[1]?.split(":")[1]?.trim()) || "",
-        recommendation: parts[2]?.split(":")[1]?.trim() === "true",
-        review_date: parts[3]?.split(":")[1]?.trim() || "",
-      };
-    });
+    const newReviews = user.reviews
+      ? user.reviews.split(";").map((reviewString) => {
+        const parts = reviewString.split(",").map((part) => part.trim());
+        return {
+          book_id: parts[0]?.split(":")[1]?.trim() || "",
+          score: Number(parts[1]?.split(":")[1]?.trim()) || "",
+          recommendation: parts[2]?.split(":")[1]?.trim() === "true",
+          review_date: parts[3]?.split(":")[1]?.trim() || "",
+        };
+      }) : [];
 
     const newUser = {
       ...user,
@@ -98,7 +107,7 @@ export default function App() {
 
         <Form.Group className="mb-3">
           <Form.Label>Job</Form.Label>
-          <Form.Control name="job" type="text" pattern="[\p{L}\s]+" placeholder="Enter job" onChange={handleChange} required />
+          <Form.Control name="job" type="text" pattern="[\p{L}\s]+" placeholder="Enter job" onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
