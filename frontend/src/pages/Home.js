@@ -13,6 +13,7 @@ export default function App() {
           <p className="lead">
             <a className="btn btn-primary btn-lg" href="/books" role="button">Books &rarr;</a>
             <a className="btn btn-primary btn-lg ms-1" href="/users" role="button">Users &rarr;</a>
+            <a className="btn btn-primary btn-lg ms-1" href="/livrarias" role="button">Livrarias &rarr;</a>
           </p>
         </div>
       </div>
@@ -32,6 +33,10 @@ export default function App() {
               <li>/user/ put page DONE</li>
               <li>/book/:id delete DONE (button: the button is inside the BookCard instead of the actual /book/:id, we thought it looked better this way)</li>
               <li>/user/:id delete DONE (button: the button is inside the UserCard instead of the actual /user/:id, we thought it looked better this way)</li>
+              <li>/book/filter get books with filters DONE</li>
+              <li>/book/jobReviews get reviews per jobs page DONE</li>
+              <li>/comment/ post comment DONE</li>
+              <li>/comment/ delete DONE (button: the button is inside the CommentCard instead of the actual /book/:id, we thought it looked better this way)</li>
             </ul>
           </div>
         </div>

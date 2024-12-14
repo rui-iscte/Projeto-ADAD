@@ -67,58 +67,24 @@ export default function App() {
     } else {
       setUser((prevUser) => ({
         ...prevUser,
-        [name]: value,
+        [name]: name === "year_of_birth" ? Number(value) : value,
       }));
     }
   };
 
-  /* const handleChange = (e) => {
-    const { name, value } = e.target;
-  
-    if (name === "reviews") {
-      if (value.trim() === "") {
-        setUser((prevUser) => ({
-          ...prevUser,
-          reviews: [],
-        }));
-      } else {
-        // Parse the reviews input into an array of review objects
-        const updatedReviews = value.split(";").map((reviewString) => {
-          const parts = reviewString.split(",").map((part) => part.trim());
-          return {
-            book_id: parts[0]?.split(":")[1]?.trim() || "",
-            score: Number(parts[1]?.split(":")[1]?.trim()) || "",
-            recommendation: parts[2]?.split(":")[1]?.trim() || "",
-            review_date: parts[3]?.split(":")[1]?.trim() || "",
-          };
-        });
-  
-        setUser((prevUser) => ({
-          ...prevUser,
-          reviews: updatedReviews,
-        }));
-      }
-    } else {
-      setUser((prevUser) => ({
-        ...prevUser,
-        [name]: value,
-      }));
-    }
-  }; */
-  
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const updatedReviews = rawReviews.split(";").map((reviewString) => {
-      const parts = reviewString.split(",").map((part) => part.trim());
-      return {
-        book_id: parts[0]?.split(":")[1]?.trim() || "",
-        score: Number(parts[1]?.split(":")[1]?.trim()) || "",
-        recommendation: parts[2]?.split(":")[1]?.trim() === "true",
-        review_date: parts[3]?.split(":")[1]?.trim() || "",
-      };
-    });
+    const updatedReviews = rawReviews
+      ? rawReviews.split(";").map((reviewString) => {
+        const parts = reviewString.split(",").map((part) => part.trim());
+        return {
+          book_id: parts[0]?.split(":")[1]?.trim() || "",
+          score: Number(parts[1]?.split(":")[1]?.trim()) || "",
+          recommendation: parts[2]?.split(":")[1]?.trim() === "true",
+          review_date: parts[3]?.split(":")[1]?.trim() || "",
+        };
+      }) : [];
 
     const updatedUser = {
       ...user,
