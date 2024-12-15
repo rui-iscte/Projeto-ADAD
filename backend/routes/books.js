@@ -408,6 +408,33 @@ router.get("/star", async (req, res) => {
                 localField: "_id",
                 foreignField: "_id",
                 as: "book_info"
+            }},
+            { $unwind: "$book_info" 
+            },
+            { 
+                $replaceRoot: { 
+                    newRoot: { 
+                        $mergeObjects: ["$book_info", { total_5_star_reviews: "$total_5_star_reviews" }] 
+                    } 
+                } 
+            },
+            { 
+                $project: {
+                    title: 1,
+                    isbn: 1,
+                    pageCount: 1,
+                    publishedDate: 1,
+                    thumbnailUrl: 1,
+                    shortDescription: 1,
+                    longDescription: 1,
+                    status: 1,
+                    authors: 1,
+                    categories: 1,
+                    price: 1,
+                    total_5_star_reviews: 1
+                }
+            },
+            { $sort: {"total_5_star_reviews": -1 , "_id": -1
             }}
         ])
         .skip((page - 1) * defaultDocPerPage)

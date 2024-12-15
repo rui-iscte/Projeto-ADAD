@@ -15,6 +15,8 @@ export default function App() {
   let [totalPages, setTotalPages] = useState(1); // Total number of pages for pagination
   let [limit, setLimit] = useState(); // Limit for books per page
 
+  let [fetchUsedGet, setFetchUsedGet] = useState("limit");
+
   const [priceMin, setPriceMin] = useState(''); // Minimum price filter
   const [priceMax, setPriceMax] = useState(''); // Maximum price filter
   const [categories, setCategories] = useState(''); // Categories filter
@@ -35,6 +37,8 @@ export default function App() {
 
   const getBooksWithFilters = async (currentPage = 1) => {
     try {
+      setFetchUsedGet("filters");
+
       const params = constructFilterParams();
       params.append('page', currentPage);
 
@@ -68,12 +72,14 @@ export default function App() {
       setFilteredBooks([]);
       setTotalPages(1);
     }
-};
+  };
 
 
   // Fetch books with limit applied
   const getBooksWithLimit = async (currentPage = 1) => {
     try {
+      setFetchUsedGet("limit");
+
       let response;
       if (limit !== undefined) {
         response = await fetch(`http://localhost:3000/books/top/${limit}?page=${currentPage}`, {
@@ -86,6 +92,38 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
         });
       }
+  
+      const data = await response.json();
+  
+      if (Array.isArray(data)) {
+        setBooks(data); // Ensure books is always an array
+        setFilteredBooks(data); // Reset filteredBooks when books are fetched
+        setTotalPages(1); // If not paginated, set totalPages to 1
+      } else if (data.results && Array.isArray(data.results)) {
+        setBooks(data.results);
+        setFilteredBooks(data.results);
+        setPage(currentPage);
+        setTotalPages(data.info?.pages || 1);
+      } else {
+        setBooks([]);
+        setFilteredBooks([]);
+        setTotalPages(1);
+      }
+    } catch (error) {
+      console.error('Error fetching books:', error);
+      setBooks([]);
+      setFilteredBooks([]);
+    }
+  };
+
+  const getBooksWith5Star = async (currentPage = 1) => {
+    try {
+      setFetchUsedGet("5Star");
+
+      let response = await fetch(`http://localhost:3000/books/star?page=${currentPage}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+      });
   
       const data = await response.json();
   
@@ -134,18 +172,37 @@ export default function App() {
     }
   };
 
+  const handle5Star = (e) => {
+      setPage(1);
+      e.preventDefault();
+      getBooksWith5Star();
+  };
+
   const handleNextPage = () => {
     if (page < totalPages) {
-      // Pass the current page + 1 and filters to the fetch function
-      getBooksWithFilters(page + 1); 
+      const nextPage = page + 1;
+      if (fetchUsedGet === "filters") {
+        getBooksWithFilters(nextPage);
+      } else if (fetchUsedGet === "limit") {
+        getBooksWithLimit(nextPage);
+      } else if (fetchUsedGet === "5Star") {
+        getBooksWith5Star(nextPage);
+      }
     }
   };
   
   const handlePreviousPage = () => {
     if (page > 1) {
-      // Pass the current page - 1 and filters to the fetch function
-      getBooksWithFilters(page - 1);
+      const previousPage = page - 1;
+      if (fetchUsedGet === "filters") {
+        getBooksWithFilters(previousPage);
+      } else if (fetchUsedGet === "limit") {
+        getBooksWithLimit(previousPage);
+      } else if (fetchUsedGet === "5Star") {
+        getBooksWith5Star(previousPage);
+      }
     }
+    
   };
   
 
@@ -170,6 +227,11 @@ export default function App() {
       <Button href={"/postbook/"} target="_blank" variant="outline-success">
         <FontAwesomeIcon icon={faPlus} />
       </Button>
+      <br /><br />
+      <Button onClick={handle5Star} variant="outline-primary">
+          5 Star
+        </Button>
+      <br /><br />
       <form onSubmit={handleChange}>
         <label htmlFor="limit">Limit:</label>
         <input type="number" step="0" min="1" id="limit" name="limit" defaultValue={limit || ""}></input>
