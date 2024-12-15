@@ -33,10 +33,15 @@ export default function App() {
               <li>/user/ put page DONE</li>
               <li>/book/:id delete DONE (button: the button is inside the BookCard instead of the actual /book/:id, we thought it looked better this way)</li>
               <li>/user/:id delete DONE (button: the button is inside the UserCard instead of the actual /user/:id, we thought it looked better this way)</li>
-              <li>/book/filter get books with filters DONE</li>
+              <li>/book/filter get books with filters TODO</li>
               <li>/book/jobReviews get reviews per jobs page DONE</li>
               <li>/comment/ post comment DONE</li>
-              <li>/comment/ delete DONE (button: the button is inside the CommentCard instead of the actual /book/:id, we thought it looked better this way)</li>
+              <li>/comment/ delete DONE (button: the button is inside the CommentCard, we thought it looked better this way)</li>
+              <li>/livrarias/near/ get page DONE</li>
+              <li>/livrarias/near/route/ page get DONE</li>
+              <li>/livrarias/feiradolivro/ get DONE</li>
+              <li>/livrarias/:id get DONE</li>
+              <li>/livrarias/:id put DONE</li>
             </ul>
           </div>
         </div>
