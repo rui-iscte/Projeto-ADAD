@@ -290,8 +290,7 @@ export default function App() {
       </Button>
       <br /><br />
       <form onSubmit={handleChange}>
-        <label htmlFor="limit">Limit:</label>
-        <input type="number" step="0" min="1" id="limit" name="limit" defaultValue={limit || ""}></input>
+        <input type="number" step="0" min="1" id="limit" name="limit" placeholder="Enter limit" defaultValue={limit || ""}></input>
         <Button type="submit" variant="outline-success">
           <FontAwesomeIcon icon={faFilter} />
         </Button>
@@ -299,8 +298,7 @@ export default function App() {
 
       <br />
       <form onSubmit={handleOrder}>
-        <label htmlFor="order">Order:</label>
-        <input type="text" pattern="[a-z]{3}" id="order" name="order" defaultValue={order || ""}></input>
+        <input type="text" pattern="[a-z]{3}" id="order" name="order" placeholder="Enter order" defaultValue={order || ""}></input>
         <Button type="submit" variant="outline-success">
           <FontAwesomeIcon icon={faFilter} />
         </Button>

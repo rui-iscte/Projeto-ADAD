@@ -24,6 +24,10 @@ export default function App() {
             <h2>Tasks List:</h2>
             <ul>
               <li>/books get page DONE</li>
+              <li>/books get books with limit sorted by score DONE</li>
+              <li>/books get books with score 5 DONE</li>
+              <li>/books get books sorted by total reviews DONE</li>
+              <li>/books get books filtered by review year DONE</li>
               <li>/users get page DONE</li>
               <li>/book/:id get page DONE</li>
               <li>/user/:id get page DONE</li>
