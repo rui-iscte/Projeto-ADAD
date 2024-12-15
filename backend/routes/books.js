@@ -658,31 +658,36 @@ router.get("/filter", async (req, res) => {
         filters.authors = { $in: authorList };
       }
   
+      // Fetch paginated books
       const books = await db.collection("books").find(filters).skip(skip).limit(limit).toArray();
-      const booksSize = await db.collection("books").find(filters).toArray();
+  
+      // Get total document count (without pagination)
       const totalDocs = await db.collection("books").countDocuments(filters);
       const totalPages = Math.ceil(totalDocs / limit);
   
+      // Pagination logic
       const baseUrl = `http://localhost:3000/books/filter`;
-  
       const buildPageUrl = (newPage) => {
         const queryParams = new URLSearchParams(req.query);
-        queryParams.set('page', newPage); 
+        queryParams.set("page", newPage);
         return `${baseUrl}?${queryParams.toString()}`;
       };
   
-      const paginationInfo = booksSize.length === limit ? {
-        count: totalDocs,
-        pages: totalPages,
-        next: books.length < limit ? null : buildPageUrl(page + 1),
-        prev: page > 1 ? buildPageUrl(page - 1) : null
+      // Include pagination info only if there are multiple pages
+      const paginationInfo = totalPages > 1 ? {
+        count: totalDocs, // Total books matching the filters
+        pages: totalPages, // Total number of pages
+        next: page < totalPages ? buildPageUrl(page + 1) : null,
+        prev: page > 1 ? buildPageUrl(page - 1) : null,
       } : null;
   
+      // Response structure
       const response = {
         ...(paginationInfo && { info: paginationInfo }),
         results: books
       };
   
+      // Return 404 if no books found
       if (books.length === 0) {
         return res.status(404).send({ error: "No books found matching the filter criteria." });
       }
@@ -693,7 +698,9 @@ router.get("/filter", async (req, res) => {
       console.error("Error fetching filtered books:", error);
       res.status(500).send({ error: "An error occurred while fetching books." });
     }
-});
+  });
+  
+  
 
 //  Alínea 14
 router.get("/year/:year", async (req, res) => {

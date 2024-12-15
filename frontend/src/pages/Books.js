@@ -1,29 +1,78 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import CardGroup from 'react-bootstrap/CardGroup';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import BookCard from "../components/BookCard";
 import { useNavigate } from "react-router-dom";
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faFilter, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function App() {
   let navigate = useNavigate();
-  let [books, setBooks] = useState([]);
-  let [filteredBooks, setFilteredBooks] = useState([]);
-  let [page, setPage] = useState(1);
-  let [totalPages, setTotalPages] = useState(1);
-  let [limit, setLimit] = useState();
-  
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
-  const [categories, setCategories] = useState('');
-  const [authors, setAuthors] = useState('');
-  
-  const [filtersVisible, setFiltersVisible] = useState(false);
+  let [books, setBooks] = useState([]); // Store the books fetched from the backend
+  let [filteredBooks, setFilteredBooks] = useState([]); // Store filtered books
+  let [page, setPage] = useState(1); // Current page for pagination
+  let [totalPages, setTotalPages] = useState(1); // Total number of pages for pagination
+  let [limit, setLimit] = useState(); // Limit for books per page
 
-  const getBooks = async (currentPage = 1) => {
+  const [priceMin, setPriceMin] = useState(''); // Minimum price filter
+  const [priceMax, setPriceMax] = useState(''); // Maximum price filter
+  const [categories, setCategories] = useState(''); // Categories filter
+  const [authors, setAuthors] = useState(''); // Authors filter
+
+  const [filtersVisible, setFiltersVisible] = useState(false); // Toggle for filters visibility
+
+  // Helper function to update filters in the API request
+  const constructFilterParams = () => {
+    const params = new URLSearchParams();
+    if (priceMin) params.append('price_min', priceMin); // Updated key to price_min
+    if (priceMax) params.append('price_max', priceMax); // Updated key to price_max
+    if (categories) params.append('categories', categories);
+    if (authors) params.append('authors', authors);
+    return params;
+  };
+  
+
+  const getBooksWithFilters = async (currentPage = 1) => {
+    try {
+      const params = constructFilterParams();
+      params.append('page', currentPage);
+
+      console.log("Fetching books with filters:", params.toString());
+
+      const response = await fetch(`http://localhost:3000/books/filter?${params.toString()}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+
+      if (data && Array.isArray(data.results)) {
+        setFilteredBooks(data.results);
+        setPage(currentPage); // Update the current page
+        
+        // Update totalPages dynamically, defaulting to 1 if not provided
+        if (data.info && data.info.pages) {
+          setTotalPages(data.info.pages); // Correctly set totalPages
+        } else {
+          console.error("Missing 'pages' field in response metadata");
+          setTotalPages(1); // Fallback to 1 if totalPages is missing
+        }
+      } else {
+        setFilteredBooks([]);
+        setTotalPages(1);
+        console.error("Invalid response structure:", data);
+      }
+    } catch (error) {
+      console.error('Error fetching filtered books:', error);
+      setFilteredBooks([]);
+      setTotalPages(1);
+    }
+};
+
+
+  // Fetch books with limit applied
+  const getBooksWithLimit = async (currentPage = 1) => {
     try {
       let response;
       if (limit !== undefined) {
@@ -48,7 +97,7 @@ export default function App() {
         setBooks(data.results);
         setFilteredBooks(data.results);
         setPage(currentPage);
-        setTotalPages(data.info.pages || 1);
+        setTotalPages(data.info?.pages || 1);
       } else {
         setBooks([]);
         setFilteredBooks([]);
@@ -60,89 +109,60 @@ export default function App() {
       setFilteredBooks([]);
     }
   };
-  
 
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      getBooks(page + 1);
-    }
-  };
-  
-  const handlePreviousPage = () => {
-    if (page > 1) {
-      getBooks(page - 1);
-    }
-  };
-
-  useEffect(() => {
-    getBooks();
-  }, [limit]);
-
-  const handleChange = (e) => {
-    const newLimit = e.target.elements.limit.value;
-    if (newLimit.length > 0) {
-      setPage(1);
-      e.preventDefault();
-      setLimit(newLimit);
-      console.log(typeof newLimit)
-    } else {
-      alert('Enter valid limit!');
-    }
-  };
-
-  const applyFilters = () => {
-    if (!Array.isArray(books) || books.length === 0) {
-      setFilteredBooks([]); // Ensure filteredBooks is always an array
-      return;
-    }
-  
-    let filtered = [...books]; // Make a copy of books to filter
-    
-    // Apply filters here
-    if (priceMin) {
-      filtered = filtered.filter((book) => book.price >= parseFloat(priceMin));
-    }
-    if (priceMax) {
-      filtered = filtered.filter((book) => book.price <= parseFloat(priceMax));
-    }
-    if (categories) {
-      const categoryArray = categories.split(',').map((c) => c.trim().toLowerCase());
-      filtered = filtered.filter((book) =>
-        Array.isArray(book.categories) &&
-        book.categories.some((category) => categoryArray.includes(category.toLowerCase()))
-      );
-    }
-    if (authors) {
-      const authorArray = authors.split(',').map((a) => a.trim().toLowerCase());
-      filtered = filtered.filter((book) =>
-        Array.isArray(book.authors) &&
-        book.authors.some((author) => authorArray.includes(author.toLowerCase()))
-      );
-    }
-  
-    setFilteredBooks(filtered); // Update filteredBooks with the filtered results
-  };
-
-  // Trigger filter on any change in filter states
-  useEffect(() => {
-    if (!priceMin && !priceMax && !categories && !authors) {
-      setFilteredBooks(books); // Ensure `filteredBooks` is always an array
-    } else {
-      applyFilters();
-    }
-  }, [priceMin, priceMax, categories, authors, books]);  
-
-  // Reset filter states
+  // Reset all filter states and fetch unfiltered books
   const resetFilters = () => {
     setPriceMin('');
     setPriceMax('');
     setCategories('');
     setAuthors('');
+    setFiltersVisible(false); // Hide filter options after reset
+    setLimit(null); // Optional: Reset limit if desired
+    getBooksWithLimit(); // Fetch all books without filters
   };
+
+  // Handle limit change and trigger data fetch
+  const handleChange = (e) => {
+    const newLimit = e.target.elements.limit.value;
+    if (newLimit.length > 0) {
+      setPage(1);
+      e.preventDefault();
+      setLimit(newLimit); // Set new limit
+      getBooksWithLimit(1); // Trigger book fetch with new limit
+    } else {
+      alert('Enter valid limit!');
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      // Pass the current page + 1 and filters to the fetch function
+      getBooksWithFilters(page + 1); 
+    }
+  };
+  
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      // Pass the current page - 1 and filters to the fetch function
+      getBooksWithFilters(page - 1);
+    }
+  };
+  
+
+  // Trigger the fetch function based on whether limit is set or filters are present
+  useEffect(() => {
+    if (priceMin || priceMax || categories || authors) {
+      getBooksWithFilters(); // Fetch books based on filters
+    } else if (limit) {
+      getBooksWithLimit(); // Fetch books based on limit
+    } else {
+      getBooksWithLimit(); // Fetch all books when no filters and no limit are set
+    }
+  }, [limit, priceMin, priceMax, categories, authors]); // Re-fetch when any filter or limit changes
 
   return (
     <div className="container pt-5 pb-5">
-      <Button href={"/"}/* onClick={() => navigate(-1)} */ variant="outline-secondary">
+      <Button href={"/"} variant="outline-secondary">
         <FontAwesomeIcon icon={faAngleLeft} />
       </Button>
       <br /><br />
@@ -152,20 +172,18 @@ export default function App() {
       </Button>
       <form onSubmit={handleChange}>
         <label htmlFor="limit">Limit:</label>
-        <input type="number" step="0" min="1" /* pattern="[1-9][0-9]{0,10}" */ id="limit" name="limit" defaultValue={limit || ""}></input>
+        <input type="number" step="0" min="1" id="limit" name="limit" defaultValue={limit || ""}></input>
         <Button type="submit" variant="outline-success">
           <FontAwesomeIcon icon={faFilter} />
         </Button>
       </form>
 
-      {/* Job Reviews Button */}
       <div className="mt-4">
         <Button variant="secondary" onClick={() => navigate('/books/job')}>
           View Job Reviews
         </Button>
       </div>
 
-      {/* Toggle Filter Button */}
       <Button 
         variant="outline-primary" 
         onClick={() => setFiltersVisible(!filtersVisible)} 
@@ -176,7 +194,6 @@ export default function App() {
 
       <br></br>
 
-      {/* Filters (Visible when filtersVisible is true) */}
       {filtersVisible && (
         <div className="filters mt-4">
           <h5>Filter Books</h5>
@@ -222,10 +239,9 @@ export default function App() {
             Reset Filters
           </Button>
         </div>
-
       )}
 
-        <br></br>
+      <br></br>
 
       {/* Book Cards */}
       {Array.isArray(filteredBooks) && filteredBooks.length === 0 ? (
@@ -234,10 +250,7 @@ export default function App() {
         <CardGroup>
           <Row xs={1} md={2} className="d-flex justify-content-around">
             {filteredBooks.map((book) => (
-              <BookCard 
-                key={book._id} 
-                {...book}
-              />
+              <BookCard key={book._id} {...book} />
             ))}
           </Row>
         </CardGroup>
@@ -252,7 +265,7 @@ export default function App() {
         >
           Previous Page
         </Button>
-        <span>Page {page} of {totalPages}</span>
+        <span>Page {page} of {totalPages}</span> {/* Updated to show dynamic totalPages */}
         <Button 
           onClick={handleNextPage} 
           variant={page === totalPages ? "outline-secondary" : "outline-primary"} 
@@ -261,6 +274,7 @@ export default function App() {
           Next Page
         </Button>
       </div>
+
     </div>
   );
 }
