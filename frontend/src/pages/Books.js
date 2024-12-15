@@ -14,6 +14,7 @@ export default function App() {
   let [page, setPage] = useState(1); // Current page for pagination
   let [totalPages, setTotalPages] = useState(1); // Total number of pages for pagination
   let [limit, setLimit] = useState(); // Limit for books per page
+  let [order, setOrder] = useState();
 
   let [fetchUsedGet, setFetchUsedGet] = useState("limit");
 
@@ -33,7 +34,7 @@ export default function App() {
     if (authors) params.append('authors', authors);
     return params;
   };
-  
+
 
   const getBooksWithFilters = async (currentPage = 1) => {
     try {
@@ -54,7 +55,7 @@ export default function App() {
       if (data && Array.isArray(data.results)) {
         setFilteredBooks(data.results);
         setPage(currentPage); // Update the current page
-        
+
         // Update totalPages dynamically, defaulting to 1 if not provided
         if (data.info && data.info.pages) {
           setTotalPages(data.info.pages); // Correctly set totalPages
@@ -92,9 +93,9 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
         });
       }
-  
+
       const data = await response.json();
-  
+
       if (Array.isArray(data)) {
         setBooks(data); // Ensure books is always an array
         setFilteredBooks(data); // Reset filteredBooks when books are fetched
@@ -121,12 +122,12 @@ export default function App() {
       setFetchUsedGet("5Star");
 
       let response = await fetch(`http://localhost:3000/books/star?page=${currentPage}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
       });
-  
+
       const data = await response.json();
-  
+
       if (Array.isArray(data)) {
         setBooks(data); // Ensure books is always an array
         setFilteredBooks(data); // Reset filteredBooks when books are fetched
@@ -142,6 +143,43 @@ export default function App() {
         setTotalPages(1);
       }
     } catch (error) {
+      console.error('Error fetching books:', error);
+      setBooks([]);
+      setFilteredBooks([]);
+    }
+  };
+
+  const getBooksWithOrder = async (currentPage = 1, newOrder) => {
+    try {
+      setFetchUsedGet("mostReviews");
+      const orderToUse = newOrder || order || "asc";
+      let response = await fetch(`http://localhost:3000/books/ratings/${orderToUse}?page=${currentPage}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setBooks(data); // Ensure books is always an array
+        setFilteredBooks(data); // Reset filteredBooks when books are fetched
+        setTotalPages(1); // If not paginated, set totalPages to 1
+      } else if (data.results && Array.isArray(data.results)) {
+        setBooks(data.results);
+        setFilteredBooks(data.results);
+        setPage(currentPage);
+        setTotalPages(data.info?.pages || 1);
+      } else {
+        setBooks([]);
+        setFilteredBooks([]);
+        setTotalPages(1);
+      }
+      if (data.error) {
+        alert(`Failed to fetch books: ${data.error}`)
+        window.location.reload();
+      }
+    }
+    catch (error) {
       console.error('Error fetching books:', error);
       setBooks([]);
       setFilteredBooks([]);
@@ -166,16 +204,29 @@ export default function App() {
       setPage(1);
       e.preventDefault();
       setLimit(newLimit); // Set new limit
-      getBooksWithLimit(1); // Trigger book fetch with new limit
+      getBooksWithLimit(1, newLimit); // Trigger book fetch with new limit
     } else {
       alert('Enter valid limit!');
     }
   };
 
   const handle5Star = (e) => {
+    setPage(1);
+    e.preventDefault();
+    getBooksWith5Star();
+  };
+
+  const handleOrder = (e) => {
+    const newOrder = e.target.elements.order.value;
+    if (newOrder.length > 0) {
+      if (!order) order = "asc";
       setPage(1);
       e.preventDefault();
-      getBooksWith5Star();
+      setOrder(newOrder);
+      getBooksWithOrder(1, newOrder);
+    } else {
+      alert('Enter valid order!');
+    }
   };
 
   const handleNextPage = () => {
@@ -187,10 +238,12 @@ export default function App() {
         getBooksWithLimit(nextPage);
       } else if (fetchUsedGet === "5Star") {
         getBooksWith5Star(nextPage);
+      } else if (fetchUsedGet === "mostReviews") {
+        getBooksWithOrder(nextPage);
       }
     }
   };
-  
+
   const handlePreviousPage = () => {
     if (page > 1) {
       const previousPage = page - 1;
@@ -200,11 +253,13 @@ export default function App() {
         getBooksWithLimit(previousPage);
       } else if (fetchUsedGet === "5Star") {
         getBooksWith5Star(previousPage);
+      } else if (fetchUsedGet === "mostReviews") {
+        getBooksWithOrder(previousPage);
       }
     }
-    
+
   };
-  
+
 
   // Trigger the fetch function based on whether limit is set or filters are present
   useEffect(() => {
@@ -212,6 +267,8 @@ export default function App() {
       getBooksWithFilters(); // Fetch books based on filters
     } else if (limit) {
       getBooksWithLimit(); // Fetch books based on limit
+    } else if (order) {
+      getBooksWithOrder(); // Fetch books based on limit
     } else {
       getBooksWithLimit(); // Fetch all books when no filters and no limit are set
     }
@@ -229,12 +286,21 @@ export default function App() {
       </Button>
       <br /><br />
       <Button onClick={handle5Star} variant="outline-primary">
-          5 Star
-        </Button>
+        5 Star
+      </Button>
       <br /><br />
       <form onSubmit={handleChange}>
         <label htmlFor="limit">Limit:</label>
         <input type="number" step="0" min="1" id="limit" name="limit" defaultValue={limit || ""}></input>
+        <Button type="submit" variant="outline-success">
+          <FontAwesomeIcon icon={faFilter} />
+        </Button>
+      </form>
+
+      <br />
+      <form onSubmit={handleOrder}>
+        <label htmlFor="order">Order:</label>
+        <input type="text" pattern="[a-z]{3}" id="order" name="order" defaultValue={order || ""}></input>
         <Button type="submit" variant="outline-success">
           <FontAwesomeIcon icon={faFilter} />
         </Button>
@@ -246,9 +312,9 @@ export default function App() {
         </Button>
       </div>
 
-      <Button 
-        variant="outline-primary" 
-        onClick={() => setFiltersVisible(!filtersVisible)} 
+      <Button
+        variant="outline-primary"
+        onClick={() => setFiltersVisible(!filtersVisible)}
         className="mt-4"
       >
         {filtersVisible ? 'Hide Filters' : 'Show Filters'}
@@ -261,39 +327,39 @@ export default function App() {
           <h5>Filter Books</h5>
           <div>
             <label>Price Min:</label>
-            <input 
-              type="number" 
-              value={priceMin} 
-              onChange={(e) => setPriceMin(e.target.value)} 
+            <input
+              type="number"
+              value={priceMin}
+              onChange={(e) => setPriceMin(e.target.value)}
               className="form-control mb-2"
             />
           </div>
           <div>
             <label>Price Max:</label>
-            <input 
-              type="number" 
-              value={priceMax} 
-              onChange={(e) => setPriceMax(e.target.value)} 
+            <input
+              type="number"
+              value={priceMax}
+              onChange={(e) => setPriceMax(e.target.value)}
               className="form-control mb-2"
             />
           </div>
           <div>
             <label>Categories:</label>
-            <input 
-              type="text" 
-              value={categories} 
-              onChange={(e) => setCategories(e.target.value)} 
-              className="form-control mb-2" 
+            <input
+              type="text"
+              value={categories}
+              onChange={(e) => setCategories(e.target.value)}
+              className="form-control mb-2"
               placeholder="Comma separated categories"
             />
           </div>
           <div>
             <label>Authors:</label>
-            <input 
-              type="text" 
-              value={authors} 
-              onChange={(e) => setAuthors(e.target.value)} 
-              className="form-control mb-2" 
+            <input
+              type="text"
+              value={authors}
+              onChange={(e) => setAuthors(e.target.value)}
+              className="form-control mb-2"
               placeholder="Comma separated authors"
             />
           </div>
@@ -320,17 +386,17 @@ export default function App() {
 
       {/* Pagination */}
       <div className="d-flex justify-content-between mt-4">
-        <Button 
-          onClick={handlePreviousPage} 
-          variant={page === 1 ? "outline-secondary" : "outline-primary"} 
+        <Button
+          onClick={handlePreviousPage}
+          variant={page === 1 ? "outline-secondary" : "outline-primary"}
           disabled={page === 1}
         >
           Previous Page
         </Button>
         <span>Page {page} of {totalPages}</span> {/* Updated to show dynamic totalPages */}
-        <Button 
-          onClick={handleNextPage} 
-          variant={page === totalPages ? "outline-secondary" : "outline-primary"} 
+        <Button
+          onClick={handleNextPage}
+          variant={page === totalPages ? "outline-secondary" : "outline-primary"}
           disabled={page === totalPages}
         >
           Next Page

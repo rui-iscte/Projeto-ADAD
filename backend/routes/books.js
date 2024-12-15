@@ -4,8 +4,8 @@ import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
-function typeId(id){
-    if (id.length >=24)
+function typeId(id) {
+    if (id.length >= 24)
         return new ObjectId(id)
     else
         return parseInt(id)
@@ -136,7 +136,7 @@ router.post('/', async (req, res) => {
             }));
             result = await db.collection('books').insertMany(insertFields);
         }
-        
+
         if (result.insertedCount == 0) {
             return res.status(404).send({ error: "Book(s) not inserted" });
         }
@@ -210,35 +210,44 @@ router.put('/:id', async (req, res) => {
 
 //  Alínea 11
 router.get("/top/:limit", async (req, res) => {
-    try{
+    try {
         const defaultDocPerPage = 20;
         let page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.params.limit);
         let results = await db.collection('users').aggregate([
-            { $unwind: "$reviews" 
+            {
+                $unwind: "$reviews"
             },
-            { $group: {
-                _id: "$reviews.book_id",
-                average_score: { $avg: "$reviews.score" }
-            }},
-            { $sort: {"average_score": -1 
-            }},
-            { $lookup: {
-                from: "books",
-                localField: "_id",
-                foreignField: "_id",
-                as: "book_info"
-            }},
-            { $unwind: "$book_info" 
+            {
+                $group: {
+                    _id: "$reviews.book_id",
+                    average_score: { $avg: "$reviews.score" }
+                }
             },
-            { 
-                $replaceRoot: { 
-                    newRoot: { 
-                        $mergeObjects: ["$book_info", { average_score: "$average_score" }] 
-                    } 
-                } 
+            {
+                $sort: {
+                    "average_score": -1
+                }
             },
-            { 
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "book_info"
+                }
+            },
+            {
+                $unwind: "$book_info"
+            },
+            {
+                $replaceRoot: {
+                    newRoot: {
+                        $mergeObjects: ["$book_info", { average_score: "$average_score" }]
+                    }
+                }
+            },
+            {
                 $project: {
                     title: 1,
                     isbn: 1,
@@ -255,35 +264,43 @@ router.get("/top/:limit", async (req, res) => {
                 }
             }
         ])
-        .limit(limit)
-        .skip((page - 1) * defaultDocPerPage)
-        .limit(defaultDocPerPage)
-        .toArray();
+            .limit(limit)
+            .skip((page - 1) * defaultDocPerPage)
+            .limit(defaultDocPerPage)
+            .toArray();
 
         let docSize = await db.collection('users').aggregate([
-            { $unwind: "$reviews" 
+            {
+                $unwind: "$reviews"
             },
-            { $group: {
-                _id: "$reviews.book_id",
-                average_score: { $avg: "$reviews.score" }
-            }},
-            { $sort: {"average_score": -1 
-        }},
-            { $lookup: {
-                from: "books",
-                localField: "_id",
-                foreignField: "_id",
-                as: "book_info"
-            }}
+            {
+                $group: {
+                    _id: "$reviews.book_id",
+                    average_score: { $avg: "$reviews.score" }
+                }
+            },
+            {
+                $sort: {
+                    "average_score": -1
+                }
+            },
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "book_info"
+                }
+            }
         ])
-        .limit(limit)
-        .toArray();
+            .limit(limit)
+            .toArray();
         if (docSize.length == 0) {
             return res.status(404).send({ error: "There are no books that match this search." });
         }
         const docCount = docSize.length;
         const pageCount = Math.ceil(docCount / defaultDocPerPage);
-        if(docCount > 20) {
+        if (docCount > 20) {
             let message = {
                 info: makeInfo(
                     docCount,
@@ -297,7 +314,7 @@ router.get("/top/:limit", async (req, res) => {
         } else {
             res.send(results).status(200);
         }
-    } catch(error) {
+    } catch (error) {
         res.status(500).send(error);
     }
 });
@@ -330,6 +347,37 @@ router.get("/ratings/:order", async (req, res) => {
                     localField: "_id",
                     foreignField: "_id",
                     as: "book_info"
+                }
+            },
+            {
+                $unwind: "$book_info"
+            },
+            {
+                $replaceRoot: {
+                    newRoot: {
+                        $mergeObjects: ["$book_info", { total_reviews: "$total_reviews" }]
+                    }
+                }
+            },
+            {
+                $project: {
+                    title: 1,
+                    isbn: 1,
+                    pageCount: 1,
+                    publishedDate: 1,
+                    thumbnailUrl: 1,
+                    shortDescription: 1,
+                    longDescription: 1,
+                    status: 1,
+                    authors: 1,
+                    categories: 1,
+                    price: 1,
+                    total_reviews: 1
+                }
+            },
+            {
+                $sort: {
+                    "total_reviews": ordem, "_id": -1
                 }
             }
         ])
@@ -365,7 +413,7 @@ router.get("/ratings/:order", async (req, res) => {
         if (req.params.order !== "asc" && req.params.order !== "dsc") {
             return res.status(404).send({ error: "Invalid order." });
         }
-        if (result.length == 0) {
+        if (results.length == 0) {
             return res.status(404).send({ error: "Books not found." });
         }
         const docCount = docSize.length;
@@ -395,30 +443,39 @@ router.get("/star", async (req, res) => {
         const defaultDocPerPage = 20;
         let page = parseInt(req.query.page) || 1;
         let results = await db.collection('users').aggregate([
-            { $unwind: "$reviews"
+            {
+                $unwind: "$reviews"
             },
-            { $match: { "reviews.score": 5
-            }},
-            {$group:{
-                _id: "$reviews.book_id",
-                total_5_star_reviews: { $count: {} }
-            }},
-            { $lookup: {
-                from: "books",
-                localField: "_id",
-                foreignField: "_id",
-                as: "book_info"
-            }},
-            { $unwind: "$book_info" 
+            {
+                $match: {
+                    "reviews.score": 5
+                }
             },
-            { 
-                $replaceRoot: { 
-                    newRoot: { 
-                        $mergeObjects: ["$book_info", { total_5_star_reviews: "$total_5_star_reviews" }] 
-                    } 
-                } 
+            {
+                $group: {
+                    _id: "$reviews.book_id",
+                    total_5_star_reviews: { $count: {} }
+                }
             },
-            { 
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "book_info"
+                }
+            },
+            {
+                $unwind: "$book_info"
+            },
+            {
+                $replaceRoot: {
+                    newRoot: {
+                        $mergeObjects: ["$book_info", { total_5_star_reviews: "$total_5_star_reviews" }]
+                    }
+                }
+            },
+            {
                 $project: {
                     title: 1,
                     isbn: 1,
@@ -434,36 +491,47 @@ router.get("/star", async (req, res) => {
                     total_5_star_reviews: 1
                 }
             },
-            { $sort: {"total_5_star_reviews": -1 , "_id": -1
-            }}
+            {
+                $sort: {
+                    "total_5_star_reviews": -1, "_id": -1
+                }
+            }
         ])
-        .skip((page - 1) * defaultDocPerPage)
-        .limit(defaultDocPerPage)
-        .toArray();
+            .skip((page - 1) * defaultDocPerPage)
+            .limit(defaultDocPerPage)
+            .toArray();
 
         let docSize = await db.collection('users').aggregate([
-            { $unwind: "$reviews"
+            {
+                $unwind: "$reviews"
             },
-            { $match: { "reviews.score": 5
-            }},
-            {$group:{
-                _id: "$reviews.book_id",
-                total_5_star_reviews: { $count: {} }
-            }},
-            { $lookup: {
-                from: "books",
-                localField: "_id",
-                foreignField: "_id",
-                as: "book_info"
-            }}
+            {
+                $match: {
+                    "reviews.score": 5
+                }
+            },
+            {
+                $group: {
+                    _id: "$reviews.book_id",
+                    total_5_star_reviews: { $count: {} }
+                }
+            },
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "book_info"
+                }
+            }
         ])
-        .toArray();
+            .toArray();
         if (docSize.length == 0) {
             return res.status(404).send({ error: "There are no books that match this search." });
         }
         const docCount = docSize.length;
         const pageCount = Math.ceil(docCount / defaultDocPerPage);
-        if(docCount > 20) {
+        if (docCount > 20) {
             let message = {
                 info: makeInfo(
                     docCount,
@@ -477,7 +545,7 @@ router.get("/star", async (req, res) => {
         } else {
             res.send(results).status(200);
         }
-    } catch(error) {
+    } catch (error) {
         res.status(500).send(error);
     }
 });
@@ -488,44 +556,58 @@ router.get("/comments", async (req, res) => {
         const defaultDocPerPage = 20;
         let page = parseInt(req.query.page) || 1;
         let results = await db.collection('comments').aggregate([
-            {$group:{
-                _id: "$book_id",
-                total_comms: { $count: {} }
-            }},
-            { $sort: {"total_comms": 1 
-            }},
-            { $lookup: {
-                from: "books",
-                localField: "_id",
-                foreignField: "_id",
-                as: "book_info"
-            }}
-            ]
+            {
+                $group: {
+                    _id: "$book_id",
+                    total_comms: { $count: {} }
+                }
+            },
+            {
+                $sort: {
+                    "total_comms": 1
+                }
+            },
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "book_info"
+                }
+            }
+        ]
         ).skip((page - 1) * defaultDocPerPage)
-        .limit(defaultDocPerPage)
-        .toArray();
-        
+            .limit(defaultDocPerPage)
+            .toArray();
+
         let docSize = await db.collection('comments').aggregate([
-            {$group:{
-                _id: "$book_id",
-                total_comms: { $count: {} }
-            }},
-            { $sort: {"total_comms": 1 
-            }},
-            { $lookup: {
-                from: "books",
-                localField: "_id",
-                foreignField: "_id",
-                as: "book_info"
-            }}
-            ]
+            {
+                $group: {
+                    _id: "$book_id",
+                    total_comms: { $count: {} }
+                }
+            },
+            {
+                $sort: {
+                    "total_comms": 1
+                }
+            },
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "book_info"
+                }
+            }
+        ]
         ).toArray();
         if (results.length == 0) {
             return res.status(404).send({ error: "There are no books that match this search." });
         }
         const docCount = docSize.length;
         const pageCount = Math.ceil(docCount / defaultDocPerPage);
-        if(docCount > 20) {
+        if (docCount > 20) {
             let message = {
                 info: makeInfo(
                     docCount,
@@ -539,7 +621,7 @@ router.get("/comments", async (req, res) => {
         } else {
             res.send(results).status(200);
         }
-    } catch(error) {
+    } catch (error) {
         res.status(500).send(error);
     }
 });
@@ -548,85 +630,85 @@ router.get("/comments", async (req, res) => {
 // GET /books/job: Find the total number of reviews by job with pagination.
 router.get("/job", async (req, res) => {
     try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = 20;
-      const skip = (page - 1) * limit;
-  
-      const jobReviewCounts = await db.collection("users").aggregate([
-        {
-          $unwind: "$reviews"
-        },
-        {
-          $group: {
-            _id: "$job",
-            totalReviews: { $sum: 1 }
-          }
-        },
-        { $sort: { _id: 1 } },
-        {
-          $skip: skip
-        },
-        {
-          $limit: limit
-        },
-        {
-          $project: {
-            _id: 0,
-            job: "$_id",
-            totalReviews: 1
-          }
-        }
-      ]).toArray();
+        const page = parseInt(req.query.page) || 1;
+        const limit = 20;
+        const skip = (page - 1) * limit;
 
-      const jobReviewCountsSize = await db.collection("users").aggregate([
-        {
-          $unwind: "$reviews"
-        },
-        {
-          $group: {
-            _id: "$job",
-            totalReviews: { $sum: 1 }
-          }
-        },
-        {
-          $project: {
-            _id: 0,
-            job: "$_id",
-            totalReviews: 1
-          }
+        const jobReviewCounts = await db.collection("users").aggregate([
+            {
+                $unwind: "$reviews"
+            },
+            {
+                $group: {
+                    _id: "$job",
+                    totalReviews: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } },
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
+            },
+            {
+                $project: {
+                    _id: 0,
+                    job: "$_id",
+                    totalReviews: 1
+                }
+            }
+        ]).toArray();
+
+        const jobReviewCountsSize = await db.collection("users").aggregate([
+            {
+                $unwind: "$reviews"
+            },
+            {
+                $group: {
+                    _id: "$job",
+                    totalReviews: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    job: "$_id",
+                    totalReviews: 1
+                }
+            }
+        ]).toArray();
+
+        const totalPages = Math.ceil(jobReviewCountsSize.length / limit);
+        const baseUrl = `http://localhost:3000/books/job`;
+
+        const buildPageUrl = (newPage) => {
+            const queryParams = new URLSearchParams(req.query);
+            queryParams.set('page', newPage);
+            return `${baseUrl}?${queryParams.toString()}`;
+        };
+
+        const paginationInfo = jobReviewCountsSize.length >= limit ? {
+            count: jobReviewCountsSize.length,
+            pages: totalPages,
+            next: jobReviewCounts.length < limit ? null : buildPageUrl(page + 1),
+            prev: page > 1 ? buildPageUrl(page - 1) : null
+        } : null;
+
+        const response = {
+            ...(paginationInfo && { info: paginationInfo }),
+            results: jobReviewCounts
+        };
+
+        if (jobReviewCountsSize.length === 0) {
+            return res.status(404).send({ error: "No job review counts found matching the criteria." });
         }
-      ]).toArray();
-      
-      const totalPages = Math.ceil(jobReviewCountsSize.length / limit);
-      const baseUrl = `http://localhost:3000/books/job`;
-  
-      const buildPageUrl = (newPage) => {
-        const queryParams = new URLSearchParams(req.query);
-        queryParams.set('page', newPage);
-        return `${baseUrl}?${queryParams.toString()}`;
-      };
-  
-      const paginationInfo = jobReviewCountsSize.length >= limit ? {
-        count: jobReviewCountsSize.length,
-        pages: totalPages,
-        next: jobReviewCounts.length < limit ? null : buildPageUrl(page + 1),
-        prev: page > 1 ? buildPageUrl(page - 1) : null
-      } : null;
-  
-      const response = {
-        ...(paginationInfo && { info: paginationInfo }),
-        results: jobReviewCounts
-      };
-  
-      if (jobReviewCountsSize.length === 0) {
-        return res.status(404).send({ error: "No job review counts found matching the criteria." });
-      }
-  
-      res.status(200).send(response);
-  
+
+        res.status(200).send(response);
+
     } catch (error) {
-      console.error("Error fetching job review counts:", error);
-      res.status(500).send({ error: "An error occurred while fetching job review counts." });
+        console.error("Error fetching job review counts:", error);
+        res.status(500).send({ error: "An error occurred while fetching job review counts." });
     }
 });
 
@@ -656,78 +738,78 @@ GET /books/filter?categories=Web%20Development,Data%20Science&authors=J.K.%20Row
 */
 router.get("/filter", async (req, res) => {
     try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = 20;
-      const skip = (page - 1) * limit;
-  
-      const price = req.query.price;
-      const price_min = req.query.price_min;
-      const price_max = req.query.price_max;
-      const categories = req.query.categories;
-      const authors = req.query.authors;
-  
-      const filters = {};
-  
-      if (price) {
-        filters.price = parseFloat(price);
-      } else {
-        if (price_min) filters.price = { ...filters.price, $gte: parseFloat(price_min) };
-        if (price_max) filters.price = { ...filters.price, $lte: parseFloat(price_max) };
-      }
-  
-      if (categories) {
-        const categoryList = decodeURIComponent(categories).split(",");
-        filters.categories = { $in: categoryList };
-      }
-  
-      if (authors) {
-        const authorList = decodeURIComponent(authors).split(",");
-        filters.authors = { $in: authorList };
-      }
-  
-      // Fetch paginated books
-      const books = await db.collection("books").find(filters).skip(skip).limit(limit).toArray();
-  
-      // Get total document count (without pagination)
-      const totalDocs = await db.collection("books").countDocuments(filters);
-      const totalPages = Math.ceil(totalDocs / limit);
-  
-      // Pagination logic
-      const baseUrl = `http://localhost:3000/books/filter`;
-      const buildPageUrl = (newPage) => {
-        const queryParams = new URLSearchParams(req.query);
-        queryParams.set("page", newPage);
-        return `${baseUrl}?${queryParams.toString()}`;
-      };
-  
-      // Include pagination info only if there are multiple pages
-      const paginationInfo = totalPages > 1 ? {
-        count: totalDocs, // Total books matching the filters
-        pages: totalPages, // Total number of pages
-        next: page < totalPages ? buildPageUrl(page + 1) : null,
-        prev: page > 1 ? buildPageUrl(page - 1) : null,
-      } : null;
-  
-      // Response structure
-      const response = {
-        ...(paginationInfo && { info: paginationInfo }),
-        results: books
-      };
-  
-      // Return 404 if no books found
-      if (books.length === 0) {
-        return res.status(404).send({ error: "No books found matching the filter criteria." });
-      }
-  
-      res.status(200).send(response);
-  
+        const page = parseInt(req.query.page) || 1;
+        const limit = 20;
+        const skip = (page - 1) * limit;
+
+        const price = req.query.price;
+        const price_min = req.query.price_min;
+        const price_max = req.query.price_max;
+        const categories = req.query.categories;
+        const authors = req.query.authors;
+
+        const filters = {};
+
+        if (price) {
+            filters.price = parseFloat(price);
+        } else {
+            if (price_min) filters.price = { ...filters.price, $gte: parseFloat(price_min) };
+            if (price_max) filters.price = { ...filters.price, $lte: parseFloat(price_max) };
+        }
+
+        if (categories) {
+            const categoryList = decodeURIComponent(categories).split(",");
+            filters.categories = { $in: categoryList };
+        }
+
+        if (authors) {
+            const authorList = decodeURIComponent(authors).split(",");
+            filters.authors = { $in: authorList };
+        }
+
+        // Fetch paginated books
+        const books = await db.collection("books").find(filters).skip(skip).limit(limit).toArray();
+
+        // Get total document count (without pagination)
+        const totalDocs = await db.collection("books").countDocuments(filters);
+        const totalPages = Math.ceil(totalDocs / limit);
+
+        // Pagination logic
+        const baseUrl = `http://localhost:3000/books/filter`;
+        const buildPageUrl = (newPage) => {
+            const queryParams = new URLSearchParams(req.query);
+            queryParams.set("page", newPage);
+            return `${baseUrl}?${queryParams.toString()}`;
+        };
+
+        // Include pagination info only if there are multiple pages
+        const paginationInfo = totalPages > 1 ? {
+            count: totalDocs, // Total books matching the filters
+            pages: totalPages, // Total number of pages
+            next: page < totalPages ? buildPageUrl(page + 1) : null,
+            prev: page > 1 ? buildPageUrl(page - 1) : null,
+        } : null;
+
+        // Response structure
+        const response = {
+            ...(paginationInfo && { info: paginationInfo }),
+            results: books
+        };
+
+        // Return 404 if no books found
+        if (books.length === 0) {
+            return res.status(404).send({ error: "No books found matching the filter criteria." });
+        }
+
+        res.status(200).send(response);
+
     } catch (error) {
-      console.error("Error fetching filtered books:", error);
-      res.status(500).send({ error: "An error occurred while fetching books." });
+        console.error("Error fetching filtered books:", error);
+        res.status(500).send({ error: "An error occurred while fetching books." });
     }
-  });
-  
-  
+});
+
+
 
 //  Alínea 14
 router.get("/year/:year", async (req, res) => {
@@ -804,7 +886,7 @@ router.get("/year/:year", async (req, res) => {
                 info: makeInfo(
                     docCount,
                     pageCount,
-                    "http://localhost:3000/books/"+year1+"?page=",
+                    "http://localhost:3000/books/" + year1 + "?page=",
                     page
                 ),
                 results,
@@ -828,41 +910,47 @@ router.get("/:id", async (req, res) => {
         let book = await db.collection('books')
             .aggregate([
                 { $match: { _id: id } },
-                { $lookup: {
-                    from: "comments",
-                    localField: "_id",
-                    foreignField: "book_id",
-                    as: "comments"
-                }},
-                { $lookup: {
-                    from: "users",
-                    let: { book_id: "$_id" },
-                    pipeline: [
-                        { $unwind: "$reviews" },
-                        { $match: { $expr: { $eq: ["$reviews.book_id", "$$book_id"] } }},
-                        { $group: { _id: 0, average_score: { $avg: "$reviews.score" }}}
-                    ],
-                    as: "average_score"
-                }},
+                {
+                    $lookup: {
+                        from: "comments",
+                        localField: "_id",
+                        foreignField: "book_id",
+                        as: "comments"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        let: { book_id: "$_id" },
+                        pipeline: [
+                            { $unwind: "$reviews" },
+                            { $match: { $expr: { $eq: ["$reviews.book_id", "$$book_id"] } } },
+                            { $group: { _id: 0, average_score: { $avg: "$reviews.score" } } }
+                        ],
+                        as: "average_score"
+                    }
+                },
                 /* { $addFields: {
                     average_score: { $ifNull: [{ $arrayElemAt: ["$average_score.average_score", 0] }, 0] }
                 }}, */
-                { $project: {
-                    _id: 1,
-                    title: 1,
-                    isbn: 1,
-                    pageCount: 1,
-                    publishedDate: 1,
-                    thumbnailUrl: 1,
-                    shortDescription: 1,
-                    longDescription: 1,
-                    status: 1,
-                    authors: 1,
-                    categories: 1,
-                    price: 1,
-                    average_score: { $ifNull: [{ $arrayElemAt: ["$average_score.average_score", 0] }, 0] },
-                    comments: { $ifNull: ["$comments", []] }
-                }}
+                {
+                    $project: {
+                        _id: 1,
+                        title: 1,
+                        isbn: 1,
+                        pageCount: 1,
+                        publishedDate: 1,
+                        thumbnailUrl: 1,
+                        shortDescription: 1,
+                        longDescription: 1,
+                        status: 1,
+                        authors: 1,
+                        categories: 1,
+                        price: 1,
+                        average_score: { $ifNull: [{ $arrayElemAt: ["$average_score.average_score", 0] }, 0] },
+                        comments: { $ifNull: ["$comments", []] }
+                    }
+                }
             ])
             .toArray();
 
@@ -875,7 +963,7 @@ router.get("/:id", async (req, res) => {
     } catch (error) {
         res.status(500).send(error);
     }
-    
+
 });
 
 export default router;
