@@ -15,6 +15,7 @@ export default function App() {
   let [totalPages, setTotalPages] = useState(1); // Total number of pages for pagination
   let [limit, setLimit] = useState(); // Limit for books per page
   let [order, setOrder] = useState();
+  let [year, setYear] = useState();
 
   let [fetchUsedGet, setFetchUsedGet] = useState("limit");
 
@@ -186,6 +187,43 @@ export default function App() {
     }
   };
 
+  const getBooksWithYear = async (currentPage = 1, newYear) => {
+    try {
+      setFetchUsedGet("year");
+      const yearToUse = newYear || year || 2024;
+      let response = await fetch(`http://localhost:3000/books/year/${yearToUse}?page=${currentPage}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setBooks(data); // Ensure books is always an array
+        setFilteredBooks(data); // Reset filteredBooks when books are fetched
+        setTotalPages(1); // If not paginated, set totalPages to 1
+      } else if (data.results && Array.isArray(data.results)) {
+        setBooks(data.results);
+        setFilteredBooks(data.results);
+        setPage(currentPage);
+        setTotalPages(data.info?.pages || 1);
+      } else {
+        setBooks([]);
+        setFilteredBooks([]);
+        setTotalPages(1);
+      }
+      if (data.error) {
+        alert(`Failed to fetch books: ${data.error}`)
+        window.location.reload();
+      }
+    }
+    catch (error) {
+      console.error('Error fetching books:', error);
+      setBooks([]);
+      setFilteredBooks([]);
+    }
+  };
+
   // Reset all filter states and fetch unfiltered books
   const resetFilters = () => {
     setPriceMin('');
@@ -229,6 +267,19 @@ export default function App() {
     }
   };
 
+  const handleYear = (e) => {
+    const newYear = e.target.elements.year.value;
+    if (newYear.length > 0) {
+      console.log(newYear)
+      setPage(1);
+      e.preventDefault();
+      setYear(newYear);
+      getBooksWithYear(1, newYear);
+    } else {
+      alert('Enter valid year!');
+    }
+  };
+
   const handleNextPage = () => {
     if (page < totalPages) {
       const nextPage = page + 1;
@@ -240,6 +291,8 @@ export default function App() {
         getBooksWith5Star(nextPage);
       } else if (fetchUsedGet === "mostReviews") {
         getBooksWithOrder(nextPage);
+      } else if (fetchUsedGet === "year") {
+        getBooksWithYear(nextPage);
       }
     }
   };
@@ -255,6 +308,8 @@ export default function App() {
         getBooksWith5Star(previousPage);
       } else if (fetchUsedGet === "mostReviews") {
         getBooksWithOrder(previousPage);
+      } else if (fetchUsedGet === "year") {
+        getBooksWithYear(previousPage);
       }
     }
 
@@ -301,6 +356,14 @@ export default function App() {
       <form onSubmit={handleOrder}>
         <label htmlFor="order">Order:</label>
         <input type="text" pattern="[a-z]{3}" id="order" name="order" defaultValue={order || ""}></input>
+        <Button type="submit" variant="outline-success">
+          <FontAwesomeIcon icon={faFilter} />
+        </Button>
+      </form>
+
+      <br />
+      <form onSubmit={handleYear}>
+        <input type="number" step="0" id="year" min="1970" max="2030" name="year" placeholder="Enter year" defaultValue={year || ""}></input>
         <Button type="submit" variant="outline-success">
           <FontAwesomeIcon icon={faFilter} />
         </Button>
