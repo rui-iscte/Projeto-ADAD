@@ -3,6 +3,8 @@ import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Button from 'react-bootstrap/Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
 function JobReviews() {
   const [jobReviews, setJobReviews] = useState([]);
@@ -51,6 +53,10 @@ function JobReviews() {
 
   return (
     <div className="container pt-5 pb-5">
+      <Button href={"/books"} variant="outline-secondary">
+        <FontAwesomeIcon icon={faAngleLeft} />
+      </Button>
+      <br></br><br></br>
       <h2 className="mb-4">Job Reviews</h2>
       {loading && (
         <div className="d-flex justify-content-center align-items-center">

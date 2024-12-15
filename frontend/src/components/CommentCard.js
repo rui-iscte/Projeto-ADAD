@@ -1,6 +1,8 @@
 import React from 'react';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
 function formatDate(date) {
   let d;
@@ -40,8 +42,8 @@ function CommentCard(props) {
         <Card.Text><strong>Comment: </strong>{formattedComment}</Card.Text>
         <Card.Text><strong>Date: </strong>{formattedDate}</Card.Text>
         {/* Delete button */}
-        <Button variant="danger" onClick={deleteComment}>
-          Delete
+        <Button variant="outline-danger" onClick={deleteComment}>
+          <FontAwesomeIcon icon={faTrashAlt} />
         </Button>
       </Card.Body>
     </Card>

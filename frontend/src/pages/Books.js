@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import BookCard from "../components/BookCard";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft, faFilter, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faFilter, faPlus, faStar, fa5, faComment } from '@fortawesome/free-solid-svg-icons';
 
 export default function App() {
   let navigate = useNavigate();
@@ -78,13 +78,16 @@ export default function App() {
 
 
   // Fetch books with limit applied
-  const getBooksWithLimit = async (currentPage = 1) => {
+  const getBooksWithLimit = async (currentPage = 1, newLimit) => {
     try {
       setFetchUsedGet("limit");
 
+      limit = newLimit ? newLimit: limit;
+
       let response;
       if (limit !== undefined) {
-        response = await fetch(`http://localhost:3000/books/top/${limit}?page=${currentPage}`, {
+        const limitToUse = newLimit || limit;
+        response = await fetch(`http://localhost:3000/books/top/${limitToUse}?page=${currentPage}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });
@@ -111,6 +114,8 @@ export default function App() {
         setFilteredBooks([]);
         setTotalPages(1);
       }
+
+      console.log(filteredBooks)
     } catch (error) {
       console.error('Error fetching books:', error);
       setBooks([]);
@@ -123,6 +128,38 @@ export default function App() {
       setFetchUsedGet("5Star");
 
       let response = await fetch(`http://localhost:3000/books/star?page=${currentPage}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setBooks(data); // Ensure books is always an array
+        setFilteredBooks(data); // Reset filteredBooks when books are fetched
+        setTotalPages(1); // If not paginated, set totalPages to 1
+      } else if (data.results && Array.isArray(data.results)) {
+        setBooks(data.results);
+        setFilteredBooks(data.results);
+        setPage(currentPage);
+        setTotalPages(data.info?.pages || 1);
+      } else {
+        setBooks([]);
+        setFilteredBooks([]);
+        setTotalPages(1);
+      }
+    } catch (error) {
+      console.error('Error fetching books:', error);
+      setBooks([]);
+      setFilteredBooks([]);
+    }
+  };
+
+  const getBooksWithComments = async (currentPage = 1) => {
+    try {
+      setFetchUsedGet("comments");
+
+      let response = await fetch(`http://localhost:3000/books/comments?page=${currentPage}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -190,7 +227,7 @@ export default function App() {
   const getBooksWithYear = async (currentPage = 1, newYear) => {
     try {
       setFetchUsedGet("year");
-      const yearToUse = newYear || year || 2024;
+      const yearToUse = newYear || year;
       let response = await fetch(`http://localhost:3000/books/year/${yearToUse}?page=${currentPage}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -239,6 +276,7 @@ export default function App() {
   const handleChange = (e) => {
     const newLimit = e.target.elements.limit.value;
     if (newLimit.length > 0) {
+      console.log("estou aqui")
       setPage(1);
       e.preventDefault();
       setLimit(newLimit); // Set new limit
@@ -252,6 +290,12 @@ export default function App() {
     setPage(1);
     e.preventDefault();
     getBooksWith5Star();
+  };
+
+  const handleComments = (e) => {
+    setPage(1);
+    e.preventDefault();
+    getBooksWithComments();
   };
 
   const handleOrder = (e) => {
@@ -293,6 +337,8 @@ export default function App() {
         getBooksWithOrder(nextPage);
       } else if (fetchUsedGet === "year") {
         getBooksWithYear(nextPage);
+      } else if (fetchUsedGet === "comments") {
+        getBooksWithComments(nextPage);
       }
     }
   };
@@ -310,6 +356,8 @@ export default function App() {
         getBooksWithOrder(previousPage);
       } else if (fetchUsedGet === "year") {
         getBooksWithYear(previousPage);
+      } else if (fetchUsedGet === "comments") {
+        getBooksWithComments(previousPage);
       }
     }
 
@@ -320,14 +368,10 @@ export default function App() {
   useEffect(() => {
     if (priceMin || priceMax || categories || authors) {
       getBooksWithFilters(); // Fetch books based on filters
-    } else if (limit) {
-      getBooksWithLimit(); // Fetch books based on limit
-    } else if (order) {
-      getBooksWithOrder(); // Fetch books based on limit
     } else {
       getBooksWithLimit(); // Fetch all books when no filters and no limit are set
     }
-  }, [limit, priceMin, priceMax, categories, authors]); // Re-fetch when any filter or limit changes
+  }, [priceMin, priceMax, categories, authors]); // Re-fetch when any filter or limit changes
 
   return (
     <div className="container pt-5 pb-5">
@@ -339,16 +383,32 @@ export default function App() {
       <Button href={"/postbook/"} target="_blank" variant="outline-success">
         <FontAwesomeIcon icon={faPlus} />
       </Button>
-      <br /><br />
+      <br /><br /><br />
       <Button onClick={handle5Star} variant="outline-primary">
-        5 Star
+        <FontAwesomeIcon icon={fa5} /> <FontAwesomeIcon icon={faStar} />
       </Button>
+      <br></br>
+      <label className="text-muted">
+				View books with score 5 reviews.
+			</label>
+      <br /><br />
+      <Button onClick={handleComments} variant="outline-primary">
+        <FontAwesomeIcon icon={faComment} />
+      </Button>
+      <br></br>
+      <label className="text-muted">
+				View books with descending order by total comments.
+			</label>
       <br /><br />
       <form onSubmit={handleChange}>
         <input type="number" step="0" min="1" id="limit" name="limit" placeholder="Enter limit" defaultValue={limit || ""}></input>
         <Button type="submit" variant="outline-success">
           <FontAwesomeIcon icon={faFilter} />
         </Button>
+        <br></br>
+        <label className="text-muted">
+					Limit books and get them in descending order by average review score.
+				</label>
       </form>
 
       <br />
@@ -357,14 +417,22 @@ export default function App() {
         <Button type="submit" variant="outline-success">
           <FontAwesomeIcon icon={faFilter} />
         </Button>
+        <br></br>
+        <label className="text-muted">
+					Order books by number of reviews. Format: <code>&lt;asc/dsc&gt;</code>
+				</label>
       </form>
 
       <br />
       <form onSubmit={handleYear}>
-        <input type="number" step="0" id="year" min="1970" max="2030" name="year" placeholder="Enter year" defaultValue={year || ""}></input>
+        <input type="number" step="0" id="year" min="1970" /* max="2030" */ name="year" placeholder="Enter year" defaultValue={year || ""}></input>
         <Button type="submit" variant="outline-success">
           <FontAwesomeIcon icon={faFilter} />
         </Button>
+        <br></br>
+        <label className="text-muted">
+					Filter books by review year.
+				</label>
       </form>
 
       <div className="mt-4">

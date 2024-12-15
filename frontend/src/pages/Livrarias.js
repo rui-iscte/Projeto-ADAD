@@ -77,7 +77,7 @@ export default function App() {
 		try {
 			if (isNaN(Number(currentPage))) currentPage = 1;
 			const response = await fetch(
-				"http://localhost:3000/livrarias/near/?page=" +
+				"http://localhost:3000/livrarias/near/route/?page=" +
 					Number(currentPage) +
 					"&long1=" +
 					long +
