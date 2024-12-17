@@ -27,6 +27,7 @@ export default function App() {
               <li>/books get books with limit sorted by score DONE</li>
               <li>/books get books with score 5 DONE</li>
               <li>/books get books sorted by total reviews DONE</li>
+              <li>/books get books sorted by total comments DONE</li>
               <li>/books get books filtered by review year DONE</li>
               <li>/users get page DONE</li>
               <li>/book/:id get page DONE</li>
@@ -37,7 +38,7 @@ export default function App() {
               <li>/user/ put page DONE</li>
               <li>/book/:id delete DONE (button: the button is inside the BookCard instead of the actual /book/:id, we thought it looked better this way)</li>
               <li>/user/:id delete DONE (button: the button is inside the UserCard instead of the actual /user/:id, we thought it looked better this way)</li>
-              <li>/book/filter get books with filters TODO</li>
+              <li>/book/filter get books with filters DONE</li>
               <li>/book/jobReviews get reviews per jobs page DONE</li>
               <li>/comment/ post comment DONE</li>
               <li>/comment/ delete DONE (button: the button is inside the CommentCard, we thought it looked better this way)</li>

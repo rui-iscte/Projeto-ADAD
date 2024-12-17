@@ -141,7 +141,7 @@ export default function App() {
 
         <Form.Group className="mb-3">
           <Form.Label>Job</Form.Label>
-          <Form.Control name="job" type="text" pattern="[\p{L}\s]+" placeholder="Enter job" value={job} onChange={handleChange} required />
+          <Form.Control name="job" type="text" pattern="[\p{L}\s]+" placeholder="Enter job" value={job} onChange={handleChange} />
         </Form.Group>
 
         <Form.Group className="mb-3">
